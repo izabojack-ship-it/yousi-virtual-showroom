@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}設備展示 — {{ site.name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+  <div class="container">
+    <h1>{% if lang == 'en' %}Equipment Showcase{% elif lang == 'ja' %}設備展示{% else %}設備展示{% endif %}</h1>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if categories %}
+    <div class="category-tabs">
+      <a href="{% url 'products' %}" class="{% if not current_category %}active{% endif %}">全部</a>
+      {% for c in categories %}
+      <a href="?category={{ c.slug }}" class="{% if current_category == c.slug %}active{% endif %}">{{ c.name_zh }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="product-grid">
+      {% for p in products %}
+      <a href="{% url 'product' product_slug=p.slug %}" class="product-card">
+        {% if p.cover_image %}
+          <div class="product-card-img" style="background-image:url('{{ p.cover_image.url }}')"></div>
+        {% else %}
+          <div class="product-card-img product-card-placeholder"></div>
+        {% endif %}
+        <div class="product-card-body">
+          <span class="product-model">{{ p.model_no }}</span>
+          <h3>{{ p.name_zh }}</h3>
+          <p>{{ p.summary_zh|truncatechars:80 }}</p>
+          <div class="product-card-tags">
+            {% if p.ar_popreal_url %}<span class="badge badge-ar">AR</span>{% endif %}
+            {% if p.model_3d_url %}<span class="badge badge-3d">3D</span>{% endif %}
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="empty-state"><p>尚無設備資料，請由後台新增</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

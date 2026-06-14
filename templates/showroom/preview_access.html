@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>預覽驗證 — 鋁台虛擬展間</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      background: linear-gradient(165deg, #E8F4FC 0%, #fff 50%, #F5F9FF 100%);
+      color: #0F2D52; padding: 24px;
+    }
+    .card {
+      width: 100%; max-width: 400px; background: #fff; border-radius: 16px;
+      padding: 28px 24px; box-shadow: 0 8px 32px rgba(30,74,140,.15);
+      border: 2px solid #FFD100;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 8px; }
+    p { margin: 0 0 20px; font-size: .9rem; color: #1E4A8C; line-height: 1.5; }
+    label { display: block; font-size: .85rem; font-weight: 700; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 12px 14px; border: 2px solid #1E4A8C33;
+      border-radius: 10px; font-size: 16px; margin-bottom: 16px;
+    }
+    button {
+      width: 100%; padding: 12px; border: 0; border-radius: 10px;
+      background: #1E4A8C; color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+    }
+    .err { color: #b42318; font-size: .85rem; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔒 展間預覽驗證</h1>
+    <p>此連結為非公開 demo，請輸入通行碼後瀏覽。</p>
+    {% if error %}<div class="err">{{ error }}</div>{% endif %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <label for="password">預覽通行碼</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+      <button type="submit">進入展間</button>
+    </form>
+  </div>
+</body>
+</html>

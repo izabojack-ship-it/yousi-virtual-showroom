@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if lang == 'en' %}AR Immersive Tour{% elif lang == 'ja' %}AR没入型ツアー{% else %}AR 沉浸式導覽示範{% endif %} — {{ site.name }}{% endblock %}
+{% block body_class %}bg-gradient-to-b from-leisure-sky to-white{% endblock %}
+
+{% block content %}
+<!-- 示範橫幅 -->
+<section class="relative overflow-hidden bg-gradient-to-br from-leisure-navy via-leisure-blue to-[#2A5F9E] text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+    <span class="inline-block px-4 py-1.5 text-xs font-bold bg-leisure-yellow text-leisure-navy rounded-full mb-4">
+      {% if site.slug == 'zitai' %}
+        ZITAI · {% if lang == 'en' %}Live Factory Photos{% elif lang == 'ja' %}工場実景{% else %}鋁台精機 · 現場實景環景導覽{% endif %}
+      {% else %}
+        DEMO MODE · 模擬資料完整示範
+      {% endif %}
+    </span>
+    <h1 class="text-3xl sm:text-4xl font-black leading-tight">
+      {% if site.slug == 'zitai' %}
+        {% if lang == 'en' %}ZITAI AR Factory Tour{% elif lang == 'ja' %}ZITAI AR工場ツアー{% else %}鋁台精機 AR 工廠導覽{% endif %}
+      {% else %}
+        {% if lang == 'en' %}Full-Feature AR Showroom Tour{% elif lang == 'ja' %}全機能 AR ショールーム{% else %}全功能 AR 展間導覽體驗{% endif %}
+      {% endif %}
+    </h1>
+    <p class="mt-3 text-white/85 max-w-2xl text-sm sm:text-base leading-relaxed">
+      {% if site.slug == 'zitai' %}
+        {% if lang == 'en' %}Walk through Plant 1 & 2 with immersive scene photos, audio guides, and die casting machine specs.{% elif lang == 'ja' %}一廠・二廠の現場写真と音声ガイド{% else %}依序體驗一廠、二廠現場沉浸式環景、語音導覽、生產線分區與 ZDC 壓鑄機產品介紹。{% endif %}
+      {% else %}
+        {% if lang == 'en' %}Explore Level 1–3, 360° plants, hotspot navigation, PopRealAR 3D, and social sharing — all with demo data.{% elif lang == 'ja' %}Level 1〜3、360°、ホットスポット、PopRealAR 3D をデモデータで体験{% else %}以下步驟依序點選，即可體驗 Level 1~3 空間拓撲、360° 廠區、平面熱點、PopRealAR 3D 互動、AR 體驗、語系切換、分享與諮詢等全部功能。{% endif %}
+      {% endif %}
+    </p>
+  </div>
+</section>
+
+<!-- 六步驟導覽路線 -->
+<section class="py-10 sm:py-14">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl sm:text-2xl font-black text-leisure-navy mb-6 text-center">
+      {% if lang == 'en' %}6-Step Demo Route{% elif lang == 'ja' %}6ステップ{% else %}建議體驗路線（6 步驟）{% endif %}
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for step in demo_steps %}
+      <a href="{{ step.url }}"
+         class="group flex gap-4 p-5 bg-white rounded-2xl border-2 border-leisure-blue/15 hover:border-leisure-yellow hover:shadow-yellow-glow transition-all">
+        <span class="flex-shrink-0 w-10 h-10 rounded-full bg-leisure-yellow text-leisure-navy font-black flex items-center justify-center text-lg shadow-yellow-glow">{{ step.num }}</span>
+        <div>
+          <h3 class="font-bold text-leisure-navy group-hover:text-leisure-blue">{{ step.title }}</h3>
+          <p class="text-xs text-leisure-navy/70 mt-1 leading-relaxed">{{ step.desc }}</p>
+          <span class="inline-block mt-2 text-xs font-bold text-leisure-blue">→ {{ step.cta }}</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 360° 即時預覽 -->
+{% if demo_360_url %}
+<section class="py-8 bg-white border-y border-leisure-blue/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-blue mb-4 flex items-center gap-2">
+      <span class="w-3 h-3 bg-leisure-yellow rounded-full animate-pulse"></span>
+      {% if lang == 'en' %}360° Live Preview{% elif lang == 'ja' %}360° プレビュー{% else %}360° 空間導覽（台灣廠示範）{% endif %}
+    </h2>
+    <div class="rounded-2xl overflow-hidden border-2 border-leisure-yellow shadow-yellow-glow aspect-video max-h-[480px]">
+      <iframe src="{{ demo_360_url }}" class="w-full h-full min-h-[280px]" allowfullscreen loading="lazy"
+              title="360 導覽示範"></iframe>
+    </div>
+    <p class="text-xs text-leisure-blue/60 mt-2 text-center">
+      {% if lang == 'en' %}Demo embed — replace with your qwhouse720 / Matterport URL in admin{% elif lang == 'ja' %}デモ埋め込み{% else %}示範嵌入連結，正式環境請至後台「廠區 / 分區」替換為實際 360 連結{% endif %}
+    </p>
+  </div>
+</section>
+{% endif %}
+
+<!-- Level 1~3 + 雙廠區 -->
+<section class="py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-navy mb-6">
+      {% if lang == 'en' %}Space Topology L1–L3{% elif lang == 'ja' %}空間 L1〜L3{% else %}空間拓撲 Level 1~3 + 雙廠區{% endif %}
+    </h2>
+    <div class="grid md:grid-cols-3 gap-4 mb-8">
+      {% for lvl in levels %}
+      <div class="bg-white rounded-2xl border border-leisure-blue/15 p-5 shadow-sport">
+        <span class="text-xs font-black text-leisure-yellow bg-leisure-navy px-2 py-0.5 rounded-full">Level {{ lvl.level_number }}</span>
+        <h3 class="font-bold text-leisure-blue mt-2">{{ lvl.name_zh }}</h3>
+        <p class="text-xs text-leisure-navy/70 mt-1">{{ lvl.summary_zh|truncatechars:80 }}</p>
+        <a href="{% url 'home' %}#level-{{ lvl.slug }}" class="inline-block mt-3 text-xs font-bold text-leisure-blue hover:underline">
+          {% if lang == 'en' %}View on home{% elif lang == 'ja' %}ホームで見る{% else %}首頁查看 →{% endif %}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      {% for plant in plants %}
+      <div class="rounded-2xl overflow-hidden border-2 {% if plant.plant_type == 'taiwan' %}border-leisure-yellow{% else %}border-leisure-blue/30{% endif %} bg-white shadow-sport">
+        {% if plant.cover_image %}
+        <div class="h-36 bg-cover bg-center" style="background-image:url('{{ plant.cover_image.url }}')"></div>
+        {% endif %}
+        <div class="p-5">
+          <span class="text-xs font-bold text-leisure-blue">
+            {% if plant.plant_type == 'taiwan' %}{% if lang == 'en' %}Taiwan · On-site 360{% elif lang == 'ja' %}台湾・360{% else %}台灣廠 · 實地 360°{% endif %}{% else %}{% if lang == 'en' %}Vietnam · Digital{% elif lang == 'ja' %}ベトナム・デジタル{% else %}越南廠 · 數位重構{% endif %}{% endif %}
+          </span>
+          <h3 class="font-bold text-leisure-navy mt-1">{{ plant.name_zh }}</h3>
+          <p class="text-xs text-leisure-navy/70 mt-2">{{ plant.description_zh|truncatechars:100 }}</p>
+          {% if plant.panorama_embed_url %}
+          <a href="{% url 'zone' zone_slug='cnc-machining' %}" class="inline-flex mt-3 px-4 py-2 text-xs font-bold bg-leisure-blue text-white rounded-full">
+            {% if lang == 'en' %}Enter 360 Zone{% elif lang == 'ja' %}360ゾーン{% else %}進入 360° 分區 →{% endif %}
+          </a>
+          {% endif %}
+          {% if plant.asset_gallery %}
+          <div class="flex gap-2 mt-3 overflow-x-auto">
+            {% for img_url in plant.asset_gallery %}
+            <img src="{{ img_url }}" alt="廠區資產" class="h-16 w-24 object-cover rounded-lg border border-leisure-sky shrink-0">
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 分區熱點導覽 -->
+<section class="py-10 bg-leisure-sky/40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-navy mb-6">
+      {% if lang == 'en' %}Zone Hotspot Navigation{% elif lang == 'ja' %}ゾーンホットスポット{% else %}分區導覽 · 360° + 平面熱點{% endif %}
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for z in zones %}
+      <a href="{% url 'zone' zone_slug=z.slug %}"
+         class="group bg-white rounded-2xl border border-leisure-blue/15 overflow-hidden hover:border-leisure-yellow hover:shadow-yellow-glow transition-all">
+        {% if z.cover_image %}
+        <div class="h-28 bg-cover bg-center" style="background-image:url('{{ z.cover_image.url }}')"></div>
+        {% endif %}
+        <div class="p-4">
+          <h3 class="font-bold text-sm text-leisure-navy group-hover:text-leisure-blue">{{ z.title_zh }}</h3>
+          <p class="text-[10px] text-leisure-blue/60 mt-1">
+            {% if z.panorama_embed_url %}360° ✓{% endif %}
+            {% if z.hotspots.count %} · {{ z.hotspots.count }} {% if lang == 'en' %}hotspots{% elif lang == 'ja' %}ホットスポット{% else %}個熱點{% endif %}{% endif %}
+          </p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 10 項零組件 PopRealAR -->
+<section class="py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-navy mb-2">
+      {% if lang == 'en' %}10 Components · PopRealAR{% elif lang == 'ja' %}10部品 PopRealAR{% else %}10 項關鍵零組件 · PopRealAR 3D{% endif %}
+    </h2>
+    <p class="text-sm text-leisure-blue/70 mb-6">
+      {% if lang == 'en' %}Click any card — adjust scale/color/angles, try AR, share.{% elif lang == 'ja' %}カードをクリックして 3D・AR を体験{% else %}點選任一卡片 → 3D 旋轉縮放 · 滑桿微調 · 顏色切換 · 體驗 AR · 一鍵分享{% endif %}
+    </p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      {% for p in products %}
+      <a href="{% url 'product' product_slug=p.slug %}"
+         class="group bg-white rounded-xl border border-leisure-blue/15 overflow-hidden hover:border-leisure-yellow hover:shadow-yellow-glow transition-all">
+        {% if p.cover_image %}
+        <div class="aspect-square bg-cover bg-center" style="background-image:url('{{ p.cover_image.url }}')"></div>
+        {% else %}
+        <div class="aspect-square bg-gradient-to-br from-leisure-navy to-leisure-blue flex items-center justify-center">
+          <span class="text-leisure-yellow font-black text-2xl">3D</span>
+        </div>
+        {% endif %}
+        <div class="p-3">
+          <span class="text-[10px] font-bold text-leisure-blue/50">{{ p.model_no }}</span>
+          <h3 class="text-xs font-bold text-leisure-navy leading-snug">{{ p.name_zh }}</h3>
+          <div class="flex flex-wrap gap-1 mt-2">
+            <span class="text-[9px] font-bold bg-leisure-yellow/30 text-leisure-navy px-1.5 py-0.5 rounded">3D</span>
+            {% if p.ar_popreal_url %}<span class="text-[9px] font-bold bg-leisure-blue/10 text-leisure-blue px-1.5 py-0.5 rounded">AR</span>{% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% if flagship %}
+    <div class="mt-8 text-center">
+      <a href="{% url 'product' product_slug=flagship.slug %}"
+         class="inline-flex px-10 py-4 text-base font-black bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow">
+        ⭐ {% if lang == 'en' %}Try Flagship: Hydraulic Stem{% elif lang == 'ja' %}主力：液圧ステム{% else %}推薦首選：液壓滑角（完整 PopRealAR 示範）{% endif %}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- 其他功能快速測試 -->
+<section id="more-features" class="py-10 bg-leisure-blue text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-yellow mb-6 text-center">
+      {% if lang == 'en' %}More Features{% elif lang == 'ja' %}その他機能{% else %}其他功能快速測試{% endif %}
+    </h2>
+    <div class="flex flex-wrap justify-center gap-3">
+      <a href="{% url 'brand' %}" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-white/30 rounded-full hover:bg-white/20">{% if lang == 'en' %}Brand Lobby{% elif lang == 'ja' %}ロビー{% else %}迎賓大廳 / 形象區{% endif %}</a>
+      <a href="{% url 'products' %}" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-white/30 rounded-full hover:bg-white/20">{% if lang == 'en' %}All Products{% elif lang == 'ja' %}全製品{% else %}產品列表{% endif %}</a>
+      <button type="button" onclick="openInquiry()" class="px-5 py-2.5 text-sm font-bold bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow">{% if lang == 'en' %}Inquiry{% elif lang == 'ja' %}問合せ{% else %}線上諮詢{% endif %}</button>
+      <button type="button" onclick="shareProduct('{{ site.name|escapejs }} AR Tour', window.location.href)" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-leisure-yellow text-leisure-yellow rounded-full">{% if lang == 'en' %}Share{% elif lang == 'ja' %}共有{% else %}一鍵分享{% endif %}</button>
+      <a href="{% url 'set_language' %}?lang=en&next={{ request.path }}" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-white/30 rounded-full">English</a>
+      <a href="{% url 'member_login' %}" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-white/30 rounded-full">{% if lang == 'en' %}Member Login{% elif lang == 'ja' %}ログイン{% else %}會員登入{% endif %}</a>
+      <a href="/admin/" class="px-5 py-2.5 text-sm font-bold bg-white/10 border border-white/30 rounded-full">{% if lang == 'en' %}Admin{% elif lang == 'ja' %}管理{% else %}後台管理{% endif %}</a>
+    </div>
+    <p class="text-center text-xs text-white/50 mt-6">示範管理員 admin / admin123 · API: /api/products/</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ lang|default:'zh-hant' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>VR{% if lang == 'en' %} Exhibition{% else %}展覽館{% endif %} — {{ site.name }}</title>
+  <link rel="stylesheet" href="{% static 'css/showroom-vr.css' %}">
+</head>
+<body class="vr-body">
+  <!-- 橫向提示（參考 VR展覽館） -->
+  <div id="vrRotateOverlay" class="vr-overlay" hidden>
+    <div class="vr-overlay-card">
+      <div class="vr-rotate-icon" aria-hidden="true">📱</div>
+      <p class="vr-overlay-text">
+        {% if lang == 'en' %}For the best experience, please rotate your device to landscape.{% else %}為了提供最好的使用體驗<br>請您將螢幕旋轉為「橫向」{% endif %}
+      </p>
+      <button type="button" class="vr-skip" data-vr-dismiss="rotate">
+        {% if lang == 'en' %}Skip{% else %}略過{% endif %}
+      </button>
+    </div>
+  </div>
+
+  <!-- 全螢幕提示 -->
+  <div id="vrFullscreenOverlay" class="vr-overlay" hidden>
+    <div class="vr-overlay-card">
+      <h2 class="vr-overlay-title">
+        {% if lang == 'en' %}Fullscreen mode{% else %}為了提供最好的使用體驗，將使用全螢幕模式{% endif %}
+      </h2>
+      <button type="button" class="vr-btn-primary" id="vrEnterFullscreen">
+        {% if lang == 'en' %}Enter VR{% else %}進入 VR 展覽館{% endif %}
+      </button>
+      <button type="button" class="vr-skip" data-vr-dismiss="fullscreen">
+        {% if lang == 'en' %}Skip{% else %}略過{% endif %}
+      </button>
+    </div>
+  </div>
+
+  <!-- 操作說明 -->
+  <div id="vrHelpPanel" class="vr-help-panel" hidden>
+    <div class="vr-help-inner">
+      <h3>{% if lang == 'en' %}Instructions{% else %}操作說明{% endif %}</h3>
+      <ul>
+        <li>{% if lang == 'en' %}Drag to look around 360°{% else %}拖曳畫面環顧四周{% endif %}</li>
+        <li>{% if lang == 'en' %}Tap pulsing rings to walk forward{% else %}點擊地面脈衝圓環沿動線前進{% endif %}</li>
+        <li>{% if lang == 'en' %}Tap green signs to visit other areas{% else %}點擊綠色路標前往其他車間{% endif %}</li>
+        <li>{% if lang == 'en' %}Pinch or scroll to zoom{% else %}雙指縮放調整視野{% endif %}</li>
+      </ul>
+      <button type="button" class="vr-btn-primary" id="vrHelpClose">OK</button>
+    </div>
+  </div>
+
+  <!-- 頂部工具列 -->
+  <header class="vr-toolbar">
+    <div class="vr-toolbar-left">
+      <span class="vr-logo">VR{% if lang == 'en' %} Hall{% else %}展覽館{% endif %}</span>
+      <span class="vr-divider">│</span>
+      <span class="vr-zone-name" id="vrSceneLabel">{{ zone.title_zh }}</span>
+    </div>
+    <div class="vr-toolbar-right">
+      <a href="{% url 'set_language' %}?lang=en&amp;next={{ request.get_full_path|urlencode }}" class="vr-lang{% if lang == 'en' %} active{% endif %}">English</a>
+      <span class="vr-divider">│</span>
+      <a href="{% url 'set_language' %}?lang=zh-hant&amp;next={{ request.get_full_path|urlencode }}" class="vr-lang{% if lang != 'en' %} active{% endif %}">中文</a>
+      <button type="button" class="vr-tool-btn" id="vrHelpBtn">{% if lang == 'en' %}Help{% else %}操作說明{% endif %}</button>
+      {% if site.is_default %}
+      <a href="{% url 'zone' zone_slug=zone.slug %}" class="vr-tool-btn vr-exit-btn">{% if lang == 'en' %}Exit{% else %}離開{% endif %}</a>
+      {% else %}
+      <a href="{% url 'site_zone' site_slug=site.slug zone_slug=zone.slug %}" class="vr-tool-btn vr-exit-btn">{% if lang == 'en' %}Exit{% else %}離開{% endif %}</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- VR 場景 -->
+  <main class="vr-stage">
+    <div id="vrTourMount" class="vr-mount"></div>
+  </main>
+
+  {% if street_tour %}{{ street_tour|json_script:"street-tour-json" }}{% endif %}
+  {% if digital_twins %}{{ digital_twins|json_script:"digital-twins-json" }}{% endif %}
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="{% static 'js/showroom-vr.js' %}"></script>
+</body>
+</html>

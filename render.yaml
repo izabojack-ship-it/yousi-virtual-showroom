@@ -1,0 +1,51 @@
+# Render Blueprint — 優思國際虛擬展間（Django + 外部 Neon Postgres + Cloudinary CDN）
+# 用法：將此 repo 推到 GitHub → Render Dashboard → New → Blueprint → 選此 repo
+#
+# 路線 A（免費且資料不過期）：
+#   - 網站：Render 免費 Web 服務（閒置會休眠，喚醒約 1 分鐘）
+#   - 資料庫：Neon 免費 Postgres（不會 30 天過期）→ 連線字串填到 DATABASE_URL
+#   - 圖片：Cloudinary 免費 CDN → 金鑰填到 CLOUDINARY_URL
+# 兩個金鑰都在 Render Dashboard 的 Environment 手動填入（見 README）。
+services:
+  - type: web
+    name: yousi-virtual-showroom
+    runtime: python
+    plan: free
+    region: singapore
+    buildCommand: "./scripts/render-build.sh"
+    startCommand: "gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers ${WEB_CONCURRENCY:-2} --timeout 120"
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      # Neon 免費 Postgres 連線字串（在 Neon Dashboard 複製，含 ?sslmode=require）
+      # 格式：postgresql://user:pass@ep-xxx.region.aws.neon.tech/dbname?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      # Render 服務網域 *.onrender.com；綁自訂網域後再補上即可
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: BEHIND_PROXY
+        value: "True"
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: CSRF_COOKIE_SECURE
+        value: "True"
+      - key: WEB_CONCURRENCY
+        value: "2"
+      # 圖片 CDN：在 Render Dashboard 手動填入你的 Cloudinary 金鑰
+      # 格式：cloudinary://<api_key>:<api_secret>@<cloud_name>
+      - key: CLOUDINARY_URL
+        sync: false
+      # 綁自訂網域時填 https 來源，例如 https://showroom.yousi.com.tw
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      # 首次部署自動建立示範資料（admin/admin123 + 展間內容），之後可改回 false
+      - key: SEED_ON_DEPLOY
+        value: "true"

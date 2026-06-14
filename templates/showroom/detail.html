@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product_name }} — {{ site.name }}{% endblock %}
+{% block og_title %}{{ product_name }}{% endblock %}
+{% block meta_desc %}{{ product_summary }}{% endblock %}
+{% block body_class %}bg-gradient-to-b from-leisure-sky to-white{% endblock %}
+
+{% block extra_css %}
+<style>
+  #threeCanvas {
+    touch-action: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+  .param-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #FFD100;
+    border: 2px solid #1E4A8C;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(255,209,0,0.5);
+  }
+  .param-slider::-moz-range-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #FFD100;
+    border: 2px solid #1E4A8C;
+    cursor: pointer;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 麵包屑 -->
+<section class="bg-white border-b border-leisure-blue/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+    <nav class="text-sm text-leisure-blue/70 flex flex-wrap items-center gap-1">
+      <a href="{% url 'home' %}" class="hover:text-leisure-blue font-medium">
+        {% if lang == 'en' %}Home{% elif lang == 'ja' %}ホーム{% else %}首頁{% endif %}
+      </a>
+      <span>/</span>
+      <a href="{% url 'products' %}" class="hover:text-leisure-blue font-medium">
+        {% if lang == 'en' %}Components{% elif lang == 'ja' %}部品{% else %}關鍵零組件{% endif %}
+      </a>
+      {% if product.showroom_level %}
+      <span>/</span>
+      <a href="{% url 'home' %}#level-{{ product.showroom_level.slug }}" class="hover:text-leisure-blue font-medium">
+        L{{ product.showroom_level.level_number }} {{ product.showroom_level.name_zh }}
+      </a>
+      {% endif %}
+      <span>/</span>
+      <span class="text-leisure-navy font-bold">{{ product_name }}</span>
+    </nav>
+  </div>
+</section>
+
+<article class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <div class="grid lg:grid-cols-5 gap-6 lg:gap-8">
+
+    <!-- Three.js 3D 畫布區 — 虛擬工廠車間場景 -->
+    <div class="lg:col-span-3 space-y-4">
+      <div class="relative rounded-2xl overflow-hidden border-2 border-[#64748b] shadow-lg bg-gradient-to-br from-[#1a1f26] via-[#2a3038] to-[#1f2937]">
+        <div id="threeContainer" class="relative w-full aspect-[4/3] sm:aspect-[16/10]">
+          <canvas id="threeCanvas" class="w-full h-full block"></canvas>
+          <div id="threeLoader" class="absolute inset-0 flex flex-col items-center justify-center bg-[#1a1f26]/90 text-white">
+            <div class="w-10 h-10 border-4 border-leisure-yellow border-t-transparent rounded-full animate-spin mb-3"></div>
+            <p class="text-sm font-medium">
+              {% if lang == 'en' %}Loading virtual factory floor…{% elif lang == 'ja' %}仮想工場を読込中…{% else %}載入虛擬工廠車間場景…{% endif %}
+            </p>
+          </div>
+          <div id="threeFallback" class="absolute inset-0 hidden items-center justify-center bg-[#1a1f26]/95 text-white p-6 text-center">
+            <div>
+              {% if product.cover_image %}
+              <img src="{{ product.cover_image.url }}" alt="{{ product_name }}" class="max-h-48 mx-auto rounded-xl mb-4 border-2 border-leisure-yellow">
+              {% endif %}
+              <p class="text-sm">
+                {% if lang == 'en' %}3D model pending — factory scene active{% elif lang == 'ja' %}3D準備中・工場シーン{% else %}3D 模型待上傳，目前於虛擬工廠檢驗台展示{% endif %}
+              </p>
+            </div>
+          </div>
+          <div id="threeCadBadge" class="absolute top-14 left-1/2 -translate-x-1/2 hidden z-10 pointer-events-none">
+            <span class="text-[11px] font-medium text-white/90 bg-black/55 backdrop-blur px-3 py-1.5 rounded-full border border-white/20">
+              {% if lang == 'en' %}CAD preview · Full STEP available below{% elif lang == 'ja' %}CAD簡易プレビュー · STEPダウンロード可{% else %}CAD 簡化預覽 · 完整 STEP 模型可下載{% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="absolute top-3 left-3 flex flex-wrap gap-2 pointer-events-none">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-[#1a1f26] bg-leisure-yellow px-2.5 py-1 rounded-full">
+            {% if lang == 'en' %}Virtual Factory{% elif lang == 'ja' %}仮想工場{% else %}虛擬工廠車間{% endif %}
+          </span>
+          {% if product.zone %}
+          <span class="text-[10px] font-medium text-white/90 bg-black/40 backdrop-blur px-2.5 py-1 rounded-full">
+            {{ product.zone.name }}
+          </span>
+          {% elif product.factory_plant %}
+          <span class="text-[10px] font-medium text-white/90 bg-black/40 backdrop-blur px-2.5 py-1 rounded-full">
+            {{ product.factory_plant.name_zh }}
+          </span>
+          {% endif %}
+        </div>
+
+        <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end pointer-events-none">
+          <span class="text-xs text-white/75 bg-black/40 backdrop-blur px-2 py-1 rounded-full">
+            {% if lang == 'en' %}Factory floor · Pinch & drag{% elif lang == 'ja' %}工場フロア{% else %}產線檢驗台 · 雙指縮放拖曳{% endif %}
+          </span>
+          <span class="text-xs font-bold text-leisure-yellow bg-black/50 backdrop-blur px-2 py-1 rounded-full">PopRealAR</span>
+        </div>
+      </div>
+
+      <!-- 車架相對位置定位圖 -->
+      {% if product.frame_position_image %}
+      <div class="bg-white rounded-2xl border border-leisure-blue/15 p-4 shadow-sport">
+        <h3 class="text-sm font-bold text-leisure-blue mb-3 flex items-center gap-2">
+          <span class="w-2 h-2 bg-leisure-yellow rounded-full"></span>
+          {% if lang == 'en' %}Frame Relative Position{% elif lang == 'ja' %}フレーム相対位置{% else %}車架相對位置定位{% endif %}
+        </h3>
+        <img src="{{ product.frame_position_image.url }}" alt="車架定位" class="w-full rounded-xl border border-leisure-sky">
+      </div>
+      {% endif %}
+
+      {% if media_items %}
+      <div class="grid grid-cols-3 gap-2">
+        {% for m in media_items %}
+          {% if m.image %}
+          <img src="{{ m.image.url }}" alt="{{ m.title }}" class="rounded-xl border border-leisure-sky object-cover aspect-square w-full hover:shadow-sport transition-shadow">
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 產品資訊 + PopRealAR 控制面板 -->
+    <div class="lg:col-span-2 space-y-5">
+      <div>
+        {% if product.model_no %}
+        <span class="inline-block px-3 py-1 text-xs font-bold bg-leisure-yellow text-leisure-navy rounded-full mb-2">{{ product.model_no }}</span>
+        {% endif %}
+        <h1 class="text-2xl sm:text-3xl font-black text-leisure-navy leading-tight">{{ product_name }}</h1>
+        {% if product_tagline %}
+        <p class="mt-2 text-leisure-blue font-medium">{{ product_tagline }}</p>
+        {% endif %}
+        <p class="mt-3 text-sm text-leisure-navy/80 leading-relaxed">{{ product_summary }}</p>
+      </div>
+
+      <!-- PopRealAR 即時規格模擬控制 -->
+      <div class="bg-white rounded-2xl border-2 border-leisure-yellow p-5 shadow-sport space-y-5" id="poprealPanel"
+           data-config="{{ popreal_config_json|escape }}"
+           data-default-color="{{ product.default_color_hex }}"
+           data-scene-theme="{{ popreal_config.scene_theme|default:'factory' }}">
+        <h2 class="text-base font-black text-leisure-blue flex items-center gap-2">
+          <svg class="w-5 h-5 text-leisure-yellow" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9V7h2v6zm0-8H9V5h2v2z"/></svg>
+          {% if lang == 'en' %}Live Spec Simulation{% elif lang == 'ja' %}リアルタイム仕様{% else %}規格即時模擬{% endif %}
+        </h2>
+
+        <!-- 縮放微調 -->
+        <div>
+          <label class="flex justify-between text-sm font-semibold text-leisure-navy mb-2">
+            <span>{% if lang == 'en' %}Scale{% elif lang == 'ja' %}スケール{% else %}尺寸縮放{% endif %}</span>
+            <span id="scaleValue" class="text-leisure-blue font-mono">{{ product.scale_default }}</span>
+          </label>
+          <input type="range" id="scaleSlider" class="param-slider w-full h-2 bg-leisure-sky rounded-full appearance-none cursor-pointer accent-leisure-yellow"
+                 min="{{ product.scale_min }}" max="{{ product.scale_max }}" step="0.01" value="{{ product.scale_default }}">
+        </div>
+
+        <!-- 直徑微調（有設定上下限時顯示） -->
+        {% if product.diameter_max > product.diameter_min %}
+        <div>
+          <label class="flex justify-between text-sm font-semibold text-leisure-navy mb-2">
+            <span>{% if lang == 'en' %}Diameter (mm){% elif lang == 'ja' %}直径 (mm){% else %}直徑 (mm){% endif %}</span>
+            <span id="diameterValue" class="text-leisure-blue font-mono">{{ product.diameter_default }}</span>
+          </label>
+          <input type="range" id="diameterSlider" class="param-slider w-full h-2 bg-leisure-sky rounded-full appearance-none cursor-pointer"
+                 min="{{ product.diameter_min }}" max="{{ product.diameter_max }}" step="0.1" value="{{ product.diameter_default }}">
+        </div>
+        {% endif %}
+
+        <!-- 工程細節：切角 / 結合角度 / 仰角 -->
+        {% if product.angle_cut_max > product.angle_cut_min %}
+        <div>
+          <label class="flex justify-between text-sm font-semibold text-leisure-navy mb-2">
+            <span>{% if lang == 'en' %}Cut Angle (°){% elif lang == 'ja' %}切角 (°){% else %}切角 (°){% endif %}</span>
+            <span id="angleCutValue" class="text-leisure-blue font-mono">{{ product.angle_cut_default }}</span>
+          </label>
+          <input type="range" id="angleCutSlider" class="param-slider w-full h-2 bg-leisure-sky rounded-full appearance-none cursor-pointer"
+                 min="{{ product.angle_cut_min }}" max="{{ product.angle_cut_max }}" step="0.5" value="{{ product.angle_cut_default }}">
+        </div>
+        {% endif %}
+
+        {% if product.joint_angle_max > product.joint_angle_min %}
+        <div>
+          <label class="flex justify-between text-sm font-semibold text-leisure-navy mb-2">
+            <span>{% if lang == 'en' %}Joint Angle (°){% elif lang == 'ja' %}結合角度 (°){% else %}結合角度 (°){% endif %}</span>
+            <span id="jointAngleValue" class="text-leisure-blue font-mono">{{ product.joint_angle_default }}</span>
+          </label>
+          <input type="range" id="jointAngleSlider" class="param-slider w-full h-2 bg-leisure-sky rounded-full appearance-none cursor-pointer"
+                 min="{{ product.joint_angle_min }}" max="{{ product.joint_angle_max }}" step="0.5" value="{{ product.joint_angle_default }}">
+        </div>
+        {% endif %}
+
+        {% if product.elevation_angle_max > product.elevation_angle_min %}
+        <div>
+          <label class="flex justify-between text-sm font-semibold text-leisure-navy mb-2">
+            <span>{% if lang == 'en' %}Elevation (°){% elif lang == 'ja' %}仰角 (°){% else %}仰角 (°){% endif %}</span>
+            <span id="elevationAngleValue" class="text-leisure-blue font-mono">{{ product.elevation_angle_default }}</span>
+          </label>
+          <input type="range" id="elevationAngleSlider" class="param-slider w-full h-2 bg-leisure-sky rounded-full appearance-none cursor-pointer"
+                 min="{{ product.elevation_angle_min }}" max="{{ product.elevation_angle_max }}" step="0.5" value="{{ product.elevation_angle_default }}">
+        </div>
+        {% endif %}
+
+        <!-- 顏色切換 -->
+        <div>
+          <p class="text-sm font-semibold text-leisure-navy mb-2">
+            {% if lang == 'en' %}Component Color{% elif lang == 'ja' %}部品カラー{% else %}零組件顏色{% endif %}
+          </p>
+          <div id="colorButtons" class="flex flex-wrap gap-2">
+            {% for color in popreal_config.color_options %}
+            <button type="button"
+                    onclick="window.YousiShowroom3D.setMeshColor('{{ color }}')"
+                    class="w-10 h-10 rounded-full border-2 border-leisure-blue/30 hover:border-leisure-yellow hover:shadow-yellow-glow transition-all hover:scale-110"
+                    style="background-color: {{ color }};"
+                    title="{{ color }}"
+                    aria-label="{% if lang == 'en' %}Color{% elif lang == 'ja' %}色{% else %}顏色{% endif %} {{ color }}">
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- 產品特點 -->
+      {% if product_features %}
+      <ul class="bg-white rounded-2xl border border-leisure-blue/15 p-5 space-y-2 shadow-sport">
+        {% for f in product_features %}
+        <li class="flex items-start gap-2 text-sm text-leisure-navy">
+          <span class="mt-1 w-2 h-2 shrink-0 bg-leisure-yellow rounded-full"></span>
+          {{ f }}
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- 操作按鈕 -->
+      <div class="flex flex-wrap gap-3">
+        {% if product.ar_popreal_url %}
+        <a href="{{ product.ar_popreal_url }}" target="_blank" rel="noopener"
+           class="inline-flex items-center px-5 py-2.5 text-sm font-bold bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow">
+          {% if lang == 'en' %}Experience AR{% elif lang == 'ja' %}AR体験{% else %}體驗 AR{% endif %}
+        </a>
+        {% endif %}
+        {% if product.catalog_pdf %}
+        <a href="{{ product.catalog_pdf.url }}" target="_blank"
+           class="inline-flex items-center px-5 py-2.5 text-sm font-bold border-2 border-leisure-blue text-leisure-blue rounded-full hover:bg-leisure-sky transition-colors">
+          {% if lang == 'en' %}Catalog PDF{% elif lang == 'ja' %}カタログ{% else %}下載型錄{% endif %}
+        </a>
+        {% endif %}
+        {% if product.step_file or product.igs_file %}
+        <a href="{{ product.cad_source_url }}" download
+           class="inline-flex items-center px-5 py-2.5 text-sm font-bold border-2 border-[#CC0000] text-[#CC0000] rounded-full hover:bg-red-50 transition-colors">
+          {% if lang == 'en' %}Download CAD (STEP){% elif lang == 'ja' %}CADダウンロード{% else %}下載 CAD 模型{% endif %}
+        </a>
+        {% endif %}
+        <button type="button" onclick="openInquiry('{{ product.slug }}')"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-bold bg-leisure-blue text-white rounded-full hover:bg-leisure-navy transition-colors">
+          {% if lang == 'en' %}Inquiry{% elif lang == 'ja' %}問合せ{% else %}線上諮詢{% endif %}
+        </button>
+        <button type="button" onclick="shareProduct('{{ product_name|escapejs }}', window.location.href)"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-bold border-2 border-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+          {% if lang == 'en' %}Share{% elif lang == 'ja' %}共有{% else %}一鍵分享{% endif %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 詳細說明 -->
+  {% if product_description %}
+  <section class="mt-10 bg-white rounded-2xl border border-leisure-blue/15 p-6 sm:p-8 shadow-sport">
+    <h2 class="text-xl font-black text-leisure-blue mb-4">
+      {% if lang == 'en' %}Technical Details{% elif lang == 'ja' %}技術詳細{% else %}詳細介紹{% endif %}
+    </h2>
+    <div class="prose prose-sm max-w-none text-leisure-navy/90 leading-relaxed">{{ product_description|linebreaks }}</div>
+  </section>
+  {% endif %}
+
+  <!-- 規格表 -->
+  {% if product.specs %}
+  <section class="mt-6 bg-white rounded-2xl border border-leisure-blue/15 overflow-hidden shadow-sport">
+    <h2 class="text-xl font-black text-leisure-blue px-6 pt-6 pb-3">
+      {% if lang == 'en' %}Specifications{% elif lang == 'ja' %}仕様{% else %}規格表{% endif %}
+    </h2>
+    <table class="w-full text-sm">
+      {% for key, val in product.specs.items %}
+      <tr class="border-t border-leisure-sky {% cycle 'bg-white' 'bg-leisure-sky/30' %}">
+        <th class="px-6 py-3 text-left font-bold text-leisure-blue w-1/3">{{ key }}</th>
+        <td class="px-6 py-3 text-leisure-navy">{{ val }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </section>
+  {% endif %}
+
+  <!-- 教育訓練說明（預留 AI 問答接口） -->
+  {% if product.training_notes_zh %}
+  <section class="mt-6 bg-leisure-sky/50 rounded-2xl border border-dashed border-leisure-blue/30 p-6" data-ai-training-notes data-key="{{ product.ai_translation_key }}">
+    <h2 class="text-sm font-bold text-leisure-blue mb-2">
+      {% if lang == 'en' %}Training Notes{% elif lang == 'ja' %}教育訓練{% else %}教育訓練說明{% endif %}
+      <span class="text-xs font-normal text-leisure-blue/50 ml-2">AI 問答系統接口</span>
+    </h2>
+    <p class="text-sm text-leisure-navy/80">
+      {% if lang == 'en' %}{{ product.training_notes_en|default:product.training_notes_zh }}{% elif lang == 'ja' %}{{ product.training_notes_ja|default:product.training_notes_zh }}{% else %}{{ product.training_notes_zh }}{% endif %}
+    </p>
+  </section>
+  {% endif %}
+
+  <!-- 相關零組件 -->
+  {% if related_products %}
+  <section class="mt-10">
+    <h2 class="text-xl font-black text-leisure-blue mb-5">
+      {% if lang == 'en' %}Related Components{% elif lang == 'ja' %}関連部品{% else %}相關零組件{% endif %}
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {% for p in related_products %}
+      <a href="{% url 'product' product_slug=p.slug %}"
+         class="group bg-white rounded-2xl border border-leisure-blue/15 overflow-hidden hover:border-leisure-yellow hover:shadow-yellow-glow transition-all">
+        {% if p.cover_image %}
+        <div class="aspect-video bg-leisure-sky bg-cover bg-center" style="background-image:url('{{ p.cover_image.url }}')"></div>
+        {% else %}
+        <div class="aspect-video bg-gradient-to-br from-leisure-blue to-leisure-navy flex items-center justify-center">
+          <span class="text-leisure-yellow font-black text-2xl">3D</span>
+        </div>
+        {% endif %}
+        <div class="p-4">
+          <span class="text-xs font-bold text-leisure-blue/60">{{ p.model_no }}</span>
+          <h3 class="font-bold text-leisure-navy group-hover:text-leisure-blue transition-colors">{{ p.name_zh }}</h3>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}
+
+{% block extra_js %}
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+<script type="module" src="{% static 'js/showroom-3d.js' %}?v=3"></script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "admin/base_site.html" %}
+{% block title %}分析儀表板{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">首頁</a> › 分析儀表板</div>
+{% endblock %}
+{% block content %}
+<h1>展間數據分析（近 {{ days }} 天）</h1>
+<p><a href="?days=7">7天</a> | <a href="?days=30">30天</a> | <a href="?days=90">90天</a></p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin:20px 0;">
+  <div style="background:#e3f2fd;padding:16px;border-radius:8px;"><strong>{{ stats.total_events }}</strong><br>總事件數</div>
+  <div style="background:#e8f5e9;padding:16px;border-radius:8px;"><strong>{{ stats.inquiry_count }}</strong><br>諮詢送出</div>
+  <div style="background:#fff3e0;padding:16px;border-radius:8px;"><strong>{{ stats.login_count }}</strong><br>會員登入</div>
+  <div style="background:#f3e5f5;padding:16px;border-radius:8px;"><strong>{{ members_count }}</strong><br>註冊會員</div>
+</div>
+
+<h2>事件類型分布</h2>
+<table style="width:100%;margin-bottom:24px;">
+  <tr><th>類型</th><th>次數</th></tr>
+  {% for row in stats.by_type %}
+  <tr><td>{{ row.event_type }}</td><td>{{ row.count }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>熱門產品</h2>
+<table style="width:100%;margin-bottom:24px;">
+  <tr><th>產品</th><th>瀏覽次數</th></tr>
+  {% for row in stats.top_products %}
+  <tr><td>{{ row.product__name_zh }}</td><td>{{ row.count }}</td></tr>
+  {% empty %}<tr><td colspan="2">尚無資料</td></tr>{% endfor %}
+</table>
+
+<h2>熱門頁面</h2>
+<table style="width:100%;margin-bottom:24px;">
+  <tr><th>路徑</th><th>次數</th></tr>
+  {% for row in stats.top_pages %}
+  <tr><td>{{ row.path }}</td><td>{{ row.count }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>最近諮詢</h2>
+<table style="width:100%;margin-bottom:24px;">
+  <tr><th>姓名</th><th>Email</th><th>日期</th><th>狀態</th></tr>
+  {% for q in recent_inquiries %}
+  <tr><td>{{ q.name }}</td><td>{{ q.email }}</td><td>{{ q.created_at|date:"Y/m/d H:i" }}</td><td>{{ q.get_status_display }}</td></tr>
+  {% endfor %}
+</table>
+
+{% if erp %}
+<h2>ERP 同步</h2>
+<p>連線：{{ erp.name }} — {{ erp.api_base_url }}{{ erp.products_endpoint }}
+  {% if erp.is_active %}(啟用){% else %}(未啟用){% endif %}
+</p>
+<table style="width:100%;">
+  <tr><th>時間</th><th>狀態</th><th>新增</th><th>更新</th><th>訊息</th></tr>
+  {% for log in erp_logs %}
+  <tr><td>{{ log.created_at|date:"Y/m/d H:i" }}</td><td>{{ log.status }}</td><td>{{ log.created_count }}</td><td>{{ log.updated_count }}</td><td>{{ log.message }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

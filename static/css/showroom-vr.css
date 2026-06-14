@@ -1,0 +1,849 @@
+/* VR 展覽館 — 全螢幕沉浸 UI（參考 VR展覽館風格） */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body.vr-body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  -webkit-user-select: none;
+  user-select: none;
+  display: block;
+}
+
+.vr-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.75), transparent);
+  pointer-events: none;
+}
+.vr-toolbar-left,
+.vr-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+.vr-logo {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #00ffff;
+  text-shadow: 0 0 12px rgba(0, 255, 255, 0.5);
+}
+.vr-zone-name {
+  font-size: 13px;
+  opacity: 0.85;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vr-divider {
+  opacity: 0.35;
+  font-size: 12px;
+}
+.vr-lang {
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  font-size: 13px;
+}
+.vr-lang.active {
+  color: #fff;
+  font-weight: 700;
+}
+.vr-tool-btn {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.vr-tool-btn:hover {
+  background: rgba(255,255,255,0.22);
+}
+.vr-exit-btn {
+  background: rgba(255,255,255,0.08);
+}
+
+.vr-stage {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
+.vr-mount {
+  width: 100%;
+  height: 100%;
+}
+.vr-mount .sv-wrap.sv-vr-mode {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+}
+.vr-mount .sv-canvas-vr {
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: absolute;
+  inset: 0;
+}
+.vr-mount .sv-canvas-host canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+.sv-canvas-host {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.sv-tech-mode .sv-canvas-host canvas {
+  filter: contrast(1.12) saturate(1.18) hue-rotate(-10deg) brightness(1.05);
+}
+.sv-tech-mode.sv-refined-mode .sv-canvas-host canvas {
+  filter: none;
+}
+.sv-label-layer {
+  position: absolute !important;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.sv-label-layer * {
+  pointer-events: auto;
+}
+.vr-scene-badge {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 90;
+  background: rgba(0, 20, 40, 0.72);
+  border: 1px solid rgba(0, 255, 255, 0.45);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: ui-monospace, monospace;
+  pointer-events: none;
+  color: #00ffff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+}
+
+.vr-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.vr-overlay[hidden] {
+  display: none !important;
+}
+.vr-overlay-card {
+  text-align: center;
+  max-width: 360px;
+}
+.vr-rotate-icon {
+  font-size: 48px;
+  animation: vrRotateHint 2s ease-in-out infinite;
+  margin-bottom: 16px;
+}
+@keyframes vrRotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+.vr-overlay-text {
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 20px;
+}
+.vr-overlay-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.7;
+  margin: 0 0 24px;
+}
+.vr-skip {
+  display: block;
+  margin: 16px auto 0;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.vr-btn-primary {
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.vr-help-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.vr-help-panel[hidden] { display: none !important; }
+.vr-help-inner {
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 28px 32px;
+  max-width: 400px;
+  width: 100%;
+}
+.vr-help-inner h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+.vr-help-inner ul {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  line-height: 1.9;
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+}
+
+.sv-vr-mode .vr-hotspot-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto;
+}
+.sv-vr-mode .vr-hotspot-core {
+  position: absolute;
+  inset: 18px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(255,255,255,0.6);
+}
+.sv-vr-mode .vr-hotspot-pulse {
+  position: absolute;
+  inset: 0;
+  border: 3px solid rgba(255,255,255,0.85);
+  border-radius: 50%;
+  animation: vrHotspotPulse 1.8s ease-out infinite;
+}
+@keyframes vrHotspotPulse {
+  0% { transform: scale(0.7); opacity: 1; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.sv-vr-mode .vr-hotspot-label {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+  white-space: nowrap;
+  text-align: center;
+}
+.sv-vr-mode .vr-exit-ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #4ade80;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 24px rgba(74,222,128,0.4);
+  margin: 0 auto;
+}
+.sv-vr-mode .vr-exit-icon {
+  font-size: 24px;
+  color: #4ade80;
+}
+.sv-vr-mode .vr-exit-label {
+  margin-top: 6px;
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 2px 6px #000;
+}
+.sv-vr-mode .vr-exit-tag {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: #4ade80;
+}
+
+/* VR 場景切換按鈕（拖曳無效時的備援） */
+.sv-vr-nav {
+  position: absolute;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+.sv-vr-nav-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 255, 255, 0.55);
+  background: rgba(0, 20, 40, 0.65);
+  color: #00ffff;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 16px rgba(0, 255, 255, 0.2);
+}
+.sv-vr-nav-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: #00ffff;
+  box-shadow: 0 0 24px rgba(0, 255, 255, 0.45);
+}
+.sv-vr-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.sv-marker-walk {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+/* 科技 HUD + AR 面板（VR 頁自含，不依賴 showroom.css） */
+.sv-tech-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+}
+.sv-tech-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 255, 255, 0.045) 2px,
+    rgba(0, 255, 255, 0.045) 4px
+  );
+  animation: svScanDrift 6s linear infinite;
+}
+@keyframes svScanDrift {
+  from { transform: translateY(0); }
+  to { transform: translateY(4px); }
+}
+.sv-tech-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 85% 75% at 50% 55%, black 15%, transparent 78%);
+}
+.sv-tech-corner {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-color: #00ffff;
+  border-style: solid;
+  opacity: 0.95;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.45);
+}
+.sv-tech-tl { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.sv-tech-tr { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.sv-tech-bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.sv-tech-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+.sv-tech-readout {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-family: ui-monospace, 'Roboto Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.sv-tech-live {
+  color: #39ff14;
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.6);
+  animation: svLiveBlink 2s ease-in-out infinite;
+}
+@keyframes svLiveBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
+}
+.sv-tech-sync { color: rgba(0, 255, 255, 0.75); }
+.sv-dt-panel {
+  background: rgba(6, 18, 38, 0.82);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--sv-accent, #00ffff);
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-width: 180px;
+  box-shadow: 0 0 28px rgba(0, 255, 255, 0.35);
+  transform: translate(-50%, -50%);
+}
+.sv-dt-title { font-size: 13px; font-weight: 800; color: #fff; }
+.sv-dt-sub {
+  font-family: ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--sv-accent, #00ffff);
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+.sv-dt-rows { margin: 8px 0 0; }
+.sv-dt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.sv-dt-row dt { color: #8892b0; }
+.sv-dt-row dd { margin: 0; font-family: ui-monospace, monospace; font-weight: 700; }
+.sv-dt-running { color: #39ff14; }
+.sv-dt-neutral { color: #e6f1ff; }
+
+/* ===== 精緻模式 — 整齊明亮乾淨 ===== */
+.sv-refined-mode .sv-canvas-host canvas {
+  filter: contrast(1.04) saturate(1.06) brightness(1.05);
+}
+.sv-tech-mode.sv-refined-mode .sv-canvas-host canvas {
+  filter: none;
+}
+.sv-tech-mode .sv-refined-vignette {
+  background: radial-gradient(
+    ellipse 96% 94% at 50% 50%,
+    transparent 78%,
+    rgba(255, 255, 255, 0.06) 92%,
+    rgba(220, 235, 255, 0.10) 100%
+  );
+}
+.sv-tech-bloom {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 65% at 50% 42%,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(0, 255, 255, 0.03) 40%,
+    transparent 72%
+  );
+  mix-blend-mode: screen;
+  animation: svBloomPulse 4s ease-in-out infinite;
+}
+@keyframes svBloomPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.sv-refined-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: radial-gradient(
+    ellipse 96% 94% at 50% 50%,
+    transparent 72%,
+    rgba(255, 255, 255, 0.04) 88%,
+    rgba(0, 0, 0, 0.10) 100%
+  );
+}
+.sv-center-dock {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  pointer-events: none;
+  width: min(92vw, 520px);
+}
+.sv-vr-mode .sv-center-dock {
+  bottom: 12%;
+}
+.sv-wrap:not(.sv-vr-mode) .sv-center-dock {
+  bottom: 8%;
+}
+.sv-center-scene {
+  text-align: center;
+  pointer-events: none;
+}
+.sv-center-label {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  letter-spacing: 0.04em;
+}
+.sv-center-counter {
+  display: block;
+  margin-top: 4px;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: rgba(0, 255, 255, 0.85);
+  text-shadow: 0 1px 6px #000;
+}
+.sv-center-nav {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  pointer-events: auto;
+  padding: 10px 14px;
+  background: rgba(8, 14, 28, 0.72);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 255, 255, 0.35);
+  border-radius: 999px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(0, 255, 255, 0.12);
+}
+.sv-center-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 72px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e8f4ff;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+.sv-center-btn:hover:not(:disabled) {
+  background: rgba(0, 255, 255, 0.12);
+  border-color: rgba(0, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+.sv-center-btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+.sv-center-btn-primary {
+  min-width: 120px;
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.22), rgba(0, 180, 255, 0.12));
+  border-color: rgba(0, 255, 255, 0.55);
+  color: #fff;
+  font-weight: 700;
+}
+.sv-center-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.35), rgba(0, 180, 255, 0.2));
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+.sv-center-btn-icon {
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+}
+.sv-center-btn-text {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.sv-center-exits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: auto;
+  max-width: 100%;
+}
+.sv-center-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(57, 255, 20, 0.45);
+  color: #fff;
+  font-size: 11px;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.sv-center-exit:hover {
+  background: rgba(57, 255, 20, 0.12);
+  box-shadow: 0 0 16px rgba(57, 255, 20, 0.25);
+  text-decoration: none;
+  color: #fff;
+}
+.sv-center-exit-tag {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: #39ff14;
+  font-weight: 700;
+}
+.sv-center-hint {
+  margin: 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  pointer-events: none;
+  text-shadow: 0 1px 4px #000;
+}
+.sv-refined-mode .sv-dt-panel {
+  background: rgba(10, 20, 40, 0.78);
+  border-color: rgba(0, 255, 255, 0.45);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35), 0 0 16px rgba(0, 255, 255, 0.15);
+}
+.sv-wrap.sv-transition .sv-canvas-host canvas {
+  opacity: 0.5;
+  transition: opacity 0.3s ease;
+}
+
+/* 步行導覽 — 動態回饋 */
+.sv-walk-overlay {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.sv-walk-overlay[hidden] { display: none !important; }
+.sv-walk-bar {
+  width: 160px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+}
+.sv-walk-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00ffff, #39ff14);
+  border-radius: 999px;
+  transition: width 0.05s linear;
+}
+.sv-walk-status {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 6px #000;
+  letter-spacing: 0.08em;
+}
+.sv-walking .sv-center-dock {
+  transition: opacity 0.25s;
+}
+.sv-walk-motion canvas {
+  transition: filter 0.15s ease;
+}
+.sv-walk-motion.sv-walking canvas,
+.sv-wrap.sv-walk-motion .sv-canvas-host canvas {
+  filter: contrast(1.05) saturate(1.08) brightness(0.92);
+}
+.sv-walk-motion .sv-refined-vignette {
+  background: radial-gradient(ellipse 85% 80% at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.55) 100%);
+  transition: background 0.3s;
+}
+
+/* 導覽檢視 — 預設不顯示 AR 遙測方框 */
+.sv-no-twins .sv-dt-panel {
+  display: none !important;
+}
+
+.sv-inspect-mode .sv-dt-panel {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden;
+}
+.sv-zoom-tools {
+  position: absolute;
+  top: 52px;
+  right: 14px;
+  z-index: 24;
+  display: flex;
+  gap: 6px;
+  pointer-events: auto;
+}
+.sv-zoom-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.sv-zoom-btn:hover {
+  background: rgba(0, 255, 255, 0.15);
+  border-color: rgba(0, 255, 255, 0.5);
+}
+.sv-ar-toggle.active {
+  background: rgba(0, 255, 255, 0.2);
+  border-color: rgba(0, 255, 255, 0.55);
+  color: #00ffff;
+}
+.sv-guide-toggle.active {
+  background: rgba(57, 255, 20, 0.18);
+  border-color: rgba(57, 255, 20, 0.55);
+  color: #39ff14;
+}
+.sv-inspect-badge {
+  display: none;
+  position: absolute;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 22;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+}
+.sv-inspect-mode .sv-inspect-badge {
+  display: block;
+}
+
+/* Google 街景 — 地面導覽箭頭 */
+.sv-ground-arrow {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+.sv-ground-disk {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto;
+  transform: perspective(280px) rotateX(62deg);
+}
+.sv-ground-pulse {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  animation: svGroundPulse 2s ease-out infinite;
+}
+@keyframes svGroundPulse {
+  0% { transform: scale(0.75); opacity: 0.95; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+.sv-ground-chevron {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-bottom: 30px solid rgba(255, 255, 255, 0.95);
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45));
+}
+.sv-ground-forward { transform: translate(-50%, -62%); }
+.sv-ground-backward { transform: translate(-50%, -38%) rotate(180deg); }
+.sv-ground-label {
+  display: block;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+}
+.sv-ground-exit { transform: translate(-50%, -50%); text-decoration: none; cursor: pointer; }
+.sv-ground-exit-disk {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 2px solid #39ff14;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: perspective(280px) rotateX(62deg);
+}
+.sv-ground-exit-icon { font-size: 20px; color: #39ff14; }
+.sv-ground-exit-label {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  background: rgba(0,0,0,0.6);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(57,255,20,0.4);
+}
+.sv-ground-exit-tag { display: block; font-size: 8px; color: #39ff14; letter-spacing: 0.12em; }
+
+@media (max-width: 640px) {
+  .sv-center-nav {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+  .sv-center-btn {
+    min-width: 56px;
+    padding: 6px 10px;
+  }
+  .sv-center-btn-primary { min-width: 96px; }
+  .sv-center-btn-text { font-size: 9px; }
+}
+
+@media (max-width: 640px) {
+  .vr-toolbar-right .vr-lang { display: none; }
+  .vr-toolbar-right .vr-divider { display: none; }
+}

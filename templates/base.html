@@ -1,0 +1,310 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="{{ current_lang|default:'zh-hant' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{% block title %}{{ site.name|default:"鋁台精機廠" }} — 雲端虛擬展間{% endblock %}</title>
+  <meta name="description" content="{% block meta_desc %}{{ site.share_description|default:site.tagline }}{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ site.share_title|default:site.name }}{% endblock %}">
+  <meta property="og:description" content="{{ site.share_description|default:site.tagline }}">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="{{ site.primary_color|default:'#1E4A8C' }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            leisure: {
+              blue: '{{ site.primary_color|default:"#1E4A8C" }}',
+              yellow: '{{ site.accent_color|default:"#FFD100" }}',
+              white: '#FFFFFF',
+              sky: '#E8F4FC',
+              navy: '#0F2D52',
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'sport': '0 8px 32px rgba(30, 74, 140, 0.15)',
+            'yellow-glow': '0 0 24px rgba(255, 209, 0, 0.45)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="{% static 'css/showroom.css' %}">
+  <style>
+    :root {
+      --primary: {{ site.primary_color|default:'#1E4A8C' }};
+      --accent: {{ site.accent_color|default:'#FFD100' }};
+      --surface: #FFFFFF;
+    }
+    body {
+      font-family: 'Noto Sans TC', system-ui, sans-serif;
+      background: linear-gradient(165deg, #E8F4FC 0%, #FFFFFF 45%, #F5F9FF 100%);
+      min-height: 100vh;
+    }
+    #floorPlanPanel.open { display: flex !important; }
+    #mobileNav.open { display: block !important; }
+    #mainNav.open { display: flex !important; }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="text-leisure-navy antialiased {% block body_class %}{% endblock %}">
+
+  <!-- 休閒運動風導覽列：黃/白/藍高對比 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-leisure-yellow shadow-sport">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="flex items-center justify-between h-16 sm:h-[4.5rem] gap-3">
+
+        <!-- 品牌 Logo -->
+        <a href="{% url 'home' %}" class="flex items-center gap-2 shrink-0 group">
+          {% if site.logo %}
+            <img src="{{ site.logo.url }}" alt="{{ site.name }}" class="h-9 sm:h-10 w-auto object-contain">
+          {% else %}
+            <span class="text-lg sm:text-xl font-black text-leisure-blue tracking-tight group-hover:text-leisure-navy transition-colors">
+              {{ site.name|default:"鋁台精機廠" }}
+            </span>
+          {% endif %}
+          <span class="hidden md:inline text-xs font-medium text-leisure-blue/70 border-l border-leisure-blue/20 pl-2">
+            {% if current_lang == 'en' %}Virtual Showroom{% elif current_lang == 'ja' %}バーチャル{% else %}雲端虛擬展間{% endif %}
+          </span>
+        </a>
+
+        <!-- 分區快速引導 -->
+        <nav id="mainNav" class="hidden lg:flex items-center gap-1 text-sm font-medium">
+          {% if site.slug != 'zitai' %}
+          <a href="{% url 'planning' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors font-semibold text-[#7B2D8B] bg-[#E9D5FF]/50">
+            {% if current_lang == 'en' %}Planning{% elif current_lang == 'ja' %}企画{% else %}規劃{% endif %}
+          </a>
+          <a href="{% url 'factory_cases' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors font-semibold text-[#1B4332] bg-[#F4A261]/30">
+            {% if current_lang == 'en' %}Factory 360{% elif current_lang == 'ja' %}工場360{% else %}真實工廠{% endif %}
+          </a>
+          {% endif %}
+          {% if site.slug == 'zitai' %}
+          <a href="{% url 'vr_hall' %}"
+             class="px-3 py-2 rounded-full hover:bg-black hover:text-white transition-colors font-semibold text-white bg-gray-900/80">
+            VR{% if current_lang == 'en' %} Hall{% else %}展覽館{% endif %}
+          </a>
+          {% endif %}
+          <a href="{% url 'ar_tour' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors font-semibold text-leisure-yellow">
+            {% if current_lang == 'en' %}AR Tour{% elif current_lang == 'ja' %}AR{% else %}AR 導覽{% endif %}
+          </a>
+          <a href="{% url 'home' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors">
+            {% if current_lang == 'en' %}Home{% elif current_lang == 'ja' %}ホーム{% else %}首頁{% endif %}
+          </a>
+          <a href="{% url 'brand' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors">
+            {% if current_lang == 'en' %}Lobby{% elif current_lang == 'ja' %}ロビー{% else %}迎賓大廳{% endif %}
+          </a>
+          <a href="{% url 'products' %}"
+             class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors">
+            {% if site.slug == 'zitai' %}{% if current_lang == 'en' %}Machines{% elif current_lang == 'ja' %}製品{% else %}壓鑄機產品{% endif %}{% else %}{% if current_lang == 'en' %}Components{% elif current_lang == 'ja' %}部品{% else %}關鍵零組件{% endif %}{% endif %}
+          </a>
+          {% for lvl in site.levels.all %}
+            {% if lvl.is_active %}
+            <a href="{% url 'home' %}#level-{{ lvl.slug }}"
+               class="px-3 py-2 rounded-full hover:bg-leisure-sky hover:text-leisure-blue transition-colors"
+               title="Level {{ lvl.level_number }}">
+              L{{ lvl.level_number }}
+            </a>
+            {% endif %}
+          {% endfor %}
+        </nav>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+
+          <!-- 全景地圖 / 當前位置 -->
+          {% if current_level and current_level.floor_plan_image %}
+          <button type="button" onclick="document.getElementById('floorPlanPanel').classList.toggle('open')"
+                  class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-leisure-sky text-leisure-blue rounded-full border border-leisure-blue/20 hover:shadow-sport transition-shadow"
+                  title="{% if current_lang == 'en' %}Floor Plan{% elif current_lang == 'ja' %}フロアマップ{% else %}全景地圖{% endif %}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+            <span>{% if current_lang == 'en' %}Map{% elif current_lang == 'ja' %}地図{% else %}全景地圖{% endif %}</span>
+          </button>
+          {% endif %}
+
+          {% if current_level %}
+          <div class="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-leisure-yellow text-leisure-navy rounded-full shadow-yellow-glow">
+            <span class="w-2 h-2 rounded-full bg-leisure-blue animate-pulse"></span>
+            {% if current_lang == 'en' %}You are here:{% elif current_lang == 'ja' %}現在地:{% else %}當前位置:{% endif %}
+            {{ current_level.name_zh }}
+          </div>
+          {% endif %}
+
+          <!-- 快速語系切換（預留 AI 多語系翻譯接口） -->
+          <div class="flex items-center bg-leisure-sky rounded-full p-0.5 border border-leisure-blue/15" data-ai-i18n-switcher>
+            <a href="{% url 'set_language' %}?lang=zh-hant&next={{ request.path }}"
+               class="px-2.5 py-1 text-xs font-bold rounded-full transition-all {% if current_lang == 'zh-hant' %}bg-leisure-blue text-white shadow-sm{% else %}text-leisure-blue hover:bg-white{% endif %}">中</a>
+            <a href="{% url 'set_language' %}?lang=en&next={{ request.path }}"
+               class="px-2.5 py-1 text-xs font-bold rounded-full transition-all {% if current_lang == 'en' %}bg-leisure-blue text-white shadow-sm{% else %}text-leisure-blue hover:bg-white{% endif %}">EN</a>
+            <a href="{% url 'set_language' %}?lang=ja&next={{ request.path }}"
+               class="px-2.5 py-1 text-xs font-bold rounded-full transition-all {% if current_lang == 'ja' %}bg-leisure-blue text-white shadow-sm{% else %}text-leisure-blue hover:bg-white{% endif %}">日</a>
+          </div>
+
+          {% if user.is_authenticated %}
+            <a href="{% url 'member_dashboard' %}" class="hidden sm:inline text-xs font-semibold text-leisure-blue hover:underline">會員</a>
+          {% elif not preview_readonly %}
+            <a href="{% url 'member_login' %}" class="hidden sm:inline text-xs font-semibold text-leisure-blue hover:underline">登入</a>
+          {% endif %}
+
+          {% if site.inquiry_enabled and not preview_readonly %}
+          <button type="button" onclick="openInquiry()"
+                  class="hidden sm:inline-flex px-4 py-2 text-xs font-bold bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow">
+            {% if current_lang == 'en' %}Contact{% elif current_lang == 'ja' %}問合せ{% else %}諮詢{% endif %}
+          </button>
+          {% endif %}
+
+          <button type="button" onclick="document.getElementById('mainNav').classList.toggle('open');document.getElementById('mobileNav').classList.toggle('open')"
+                  class="lg:hidden p-2 rounded-lg bg-leisure-sky text-leisure-blue" aria-label="選單">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 手機版導覽 -->
+    <div id="mobileNav" class="lg:hidden hidden border-t border-leisure-blue/10 bg-white px-4 py-3 space-y-1">
+      <a href="{% url 'home' %}" class="block px-3 py-2 rounded-lg hover:bg-leisure-sky font-medium">{% if current_lang == 'en' %}Home{% elif current_lang == 'ja' %}ホーム{% else %}首頁{% endif %}</a>
+      <a href="{% url 'brand' %}" class="block px-3 py-2 rounded-lg hover:bg-leisure-sky font-medium">{% if current_lang == 'en' %}Lobby{% elif current_lang == 'ja' %}ロビー{% else %}迎賓大廳{% endif %}</a>
+      <a href="{% url 'products' %}" class="block px-3 py-2 rounded-lg hover:bg-leisure-sky font-medium">{% if current_lang == 'en' %}Components{% elif current_lang == 'ja' %}部品{% else %}關鍵零組件{% endif %}</a>
+      {% for lvl in site.levels.all %}
+        {% if lvl.is_active %}
+        <a href="{% url 'home' %}#level-{{ lvl.slug }}" class="block px-3 py-2 rounded-lg hover:bg-leisure-sky font-medium">L{{ lvl.level_number }} — {{ lvl.name_zh }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </header>
+
+  <!-- 全景地圖浮層 -->
+  {% if current_level and current_level.floor_plan_image %}
+  <div id="floorPlanPanel" class="fixed inset-0 z-[60] bg-leisure-navy/60 backdrop-blur-sm hidden items-center justify-center p-4 open:flex">
+    <div class="bg-white rounded-2xl shadow-sport max-w-2xl w-full overflow-hidden border-2 border-leisure-yellow">
+      <div class="flex items-center justify-between px-5 py-3 bg-leisure-blue text-white">
+        <h3 class="font-bold">{% if current_lang == 'en' %}Floor Plan{% elif current_lang == 'ja' %}フロアマップ{% else %}全景地圖 · 當前位置{% endif %}</h3>
+        <button type="button" onclick="document.getElementById('floorPlanPanel').classList.remove('open')" class="text-white/80 hover:text-white text-xl">✕</button>
+      </div>
+      <div class="p-4 relative">
+        <img src="{{ current_level.floor_plan_image.url }}" alt="全景地圖" class="w-full rounded-xl">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-leisure-yellow rounded-full border-2 border-leisure-navy shadow-yellow-glow animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <main class="min-h-[calc(100vh-8rem)]">
+    {% if preview_readonly %}
+    <div class="bg-leisure-yellow/90 text-leisure-navy text-center text-xs sm:text-sm font-semibold py-2 px-4 border-b border-leisure-yellow">
+      預覽模式 · 僅供瀏覽展間，無法諮詢、註冊或修改任何資料
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="bg-leisure-blue text-white mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <div class="grid sm:grid-cols-3 gap-8">
+        <div>
+          <strong class="text-lg font-black text-leisure-yellow">{{ site.name|default:"鋁台精機廠" }}</strong>
+          <p class="mt-2 text-sm text-white/80">{{ site.tagline }}</p>
+        </div>
+        <div class="flex flex-wrap gap-4 text-sm">
+          {% if site.website_url %}<a href="{{ site.website_url }}" target="_blank" rel="noopener" class="hover:text-leisure-yellow transition-colors">官網</a>{% endif %}
+          {% if site.facebook_url %}<a href="{{ site.facebook_url }}" target="_blank" rel="noopener" class="hover:text-leisure-yellow transition-colors">Facebook</a>{% endif %}
+          {% if site.instagram_url %}<a href="{{ site.instagram_url }}" target="_blank" rel="noopener" class="hover:text-leisure-yellow transition-colors">Instagram</a>{% endif %}
+          {% if site.youtube_url %}<a href="{{ site.youtube_url }}" target="_blank" rel="noopener" class="hover:text-leisure-yellow transition-colors">YouTube</a>{% endif %}
+          {% if site.line_url %}<a href="{{ site.line_url }}" target="_blank" rel="noopener" class="hover:text-leisure-yellow transition-colors">LINE</a>{% endif %}
+        </div>
+        <div class="text-sm text-white/80 space-y-1">
+          {% if site.contact_email %}<div>{{ site.contact_email }}</div>{% endif %}
+          {% if site.contact_phone %}<div>{{ site.contact_phone }}</div>{% endif %}
+        </div>
+      </div>
+      <p class="mt-8 pt-6 border-t border-white/20 text-center text-xs text-white/60">
+        © {{ site.name|default:"鋁台精機廠" }} — {{ site.tagline|default:"沉浸式雲端虛擬展間" }}
+      </p>
+    </div>
+  </footer>
+
+  <!-- 線上諮詢 Modal -->
+  {% if not preview_readonly %}
+  <div class="modal-overlay" id="inquiryModal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>{% if current_lang == 'en' %}Online Inquiry{% elif current_lang == 'ja' %}お問い合わせ{% else %}線上諮詢{% endif %}</h3>
+        <button type="button" onclick="closeInquiry()" class="modal-close">✕</button>
+      </div>
+      <form id="inquiryForm" class="modal-body">
+        <input type="hidden" name="product_slug" id="inquiryProductSlug" value="">
+        <label>姓名 *<input type="text" name="name" required></label>
+        <label>公司<input type="text" name="company"></label>
+        <label>Email *<input type="email" name="email" required></label>
+        <label>電話<input type="tel" name="phone"></label>
+        <label>諮詢內容 *<textarea name="message" rows="4" required></textarea></label>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-outline" onclick="closeInquiry()">取消</button>
+          <button type="submit" class="btn btn-primary">送出</button>
+        </div>
+        <p id="inquiryMsg" class="form-msg"></p>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 社群分享快顯（一鍵轉發 LINE / Facebook / LinkedIn / 複製連結） -->
+  <div class="modal-overlay" id="shareModal" aria-hidden="true">
+    <div class="modal share-modal">
+      <div class="modal-head bg-leisure-blue text-white rounded-t-[10px]">
+        <h3>{% if current_lang == 'en' %}Share to Social{% elif current_lang == 'ja' %}SNSで共有{% else %}一鍵分享{% endif %}</h3>
+        <button type="button" onclick="closeShareModal()" class="modal-close text-white/80 hover:text-white">✕</button>
+      </div>
+      <div class="modal-body">
+        <p id="shareModalTitle" class="text-sm font-bold text-leisure-navy truncate"></p>
+        <div class="grid grid-cols-2 gap-3 mt-2">
+          <button type="button" onclick="shareToPlatform('line')"
+                  class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#06C755] text-white text-sm font-bold hover:opacity-90 transition-opacity">
+            LINE
+          </button>
+          <button type="button" onclick="shareToPlatform('facebook')"
+                  class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#1877F2] text-white text-sm font-bold hover:opacity-90 transition-opacity">
+            Facebook
+          </button>
+          <button type="button" onclick="shareToPlatform('linkedin')"
+                  class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[#0A66C2] text-white text-sm font-bold hover:opacity-90 transition-opacity">
+            LinkedIn
+          </button>
+          <button type="button" onclick="shareToPlatform('copy')"
+                  class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-leisure-yellow text-leisure-navy text-sm font-bold hover:shadow-yellow-glow transition-shadow">
+            {% if current_lang == 'en' %}Copy Link{% elif current_lang == 'ja' %}リンク{% else %}複製連結{% endif %}
+          </button>
+        </div>
+        <p id="shareModalMsg" class="form-msg text-center"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作指引 -->
+  <button type="button" class="guide-fab" onclick="document.getElementById('guidePanel').classList.toggle('open')" title="操作說明">?</button>
+  <div class="guide-panel" id="guidePanel">
+    <h4>{% if current_lang == 'en' %}How to Use{% elif current_lang == 'ja' %}操作ガイド{% else %}操作說明{% endif %}</h4>
+    <ol>
+      <li>{% if current_lang == 'en' %}Navigate Level 1–3 zones{% elif current_lang == 'ja' %}Level 1〜3 を探索{% else %}依 Level 1~3 空間拓撲導覽展間{% endif %}</li>
+      <li>{% if current_lang == 'en' %}Pinch & drag 3D models{% elif current_lang == 'ja' %}3Dモデルを操作{% else %}雙指縮放、拖曳旋轉 3D 零組件模型{% endif %}</li>
+      <li>{% if current_lang == 'en' %}Adjust specs in real-time{% elif current_lang == 'ja' %}リアルタイム調整{% else %}滑桿即時微調規格（尺寸、角度、顏色）{% endif %}</li>
+      <li>{% if current_lang == 'en' %}Share to social media{% elif current_lang == 'ja' %}SNSで共有{% else %}一鍵分享至社群平台{% endif %}</li>
+    </ol>
+  </div>
+
+  <script src="{% static 'js/showroom.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

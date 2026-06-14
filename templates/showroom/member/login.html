@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}會員登入 — {{ site.name }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:420px;">
+    <h1 style="text-align:center;margin-bottom:24px;">會員登入</h1>
+    {% if error %}<p style="color:#c62828;text-align:center;">{{ error }}</p>{% endif %}
+    <form method="post" class="member-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.GET.next }}">
+      <label>帳號<input type="text" name="username" required></label>
+      <label>密碼<input type="password" name="password" required></label>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:12px;">登入</button>
+    </form>
+    <p style="text-align:center;margin-top:16px;font-size:14px;">
+      還沒有帳號？<a href="{% url 'member_register' %}">立即註冊</a>
+    </p>
+  </div>
+</section>
+{% endblock %}

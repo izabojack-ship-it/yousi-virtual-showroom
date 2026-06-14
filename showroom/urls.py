@@ -1,0 +1,38 @@
+from django.urls import path
+from . import member_views, views
+
+urlpatterns = [
+    path("member/login/", member_views.member_login, name="member_login"),
+    path("member/register/", member_views.member_register, name="member_register"),
+    path("member/logout/", member_views.member_logout, name="member_logout"),
+    path("member/", member_views.member_dashboard, name="member_dashboard"),
+    path("lang/", views.set_language, name="set_language"),
+    path("preview-access/", views.preview_access, name="preview_access"),
+    path("tour/", views.ar_tour, name="ar_tour"),
+    path("plan/", views.planning_preview, name="planning"),
+    path("demo/factory-cases/", views.factory_cases, name="factory_cases"),
+    path("vr/", views.vr_hall, name="vr_hall"),
+    path("vr/<slug:zone_slug>/", views.vr_zone_tour, name="vr_zone"),
+    path("s/<slug:site_slug>/vr/", views.vr_hall, name="site_vr_hall"),
+    path("s/<slug:site_slug>/vr/<slug:zone_slug>/", views.vr_zone_tour, name="site_vr_zone"),
+    path("s/<slug:site_slug>/plan/", views.planning_preview, name="site_planning"),
+    path("s/<slug:site_slug>/tour/", views.ar_tour, name="site_ar_tour"),
+    path("s/<slug:site_slug>/demo/factory-cases/", views.factory_cases, name="site_factory_cases"),
+    path("s/<slug:site_slug>/", views.home, name="site_home"),
+    path("s/<slug:site_slug>/brand/", views.brand_zone, name="site_brand"),
+    path("s/<slug:site_slug>/products/", views.product_list, name="site_products"),
+    path("s/<slug:site_slug>/zone/<slug:zone_slug>/", views.zone_detail, name="site_zone"),
+    path("s/<slug:site_slug>/product/<slug:product_slug>/", views.product_detail, name="site_product"),
+    path("s/<slug:site_slug>/inquiry/", views.submit_inquiry, name="site_inquiry"),
+    path("s/<slug:site_slug>/share/", views.share_page, name="site_share"),
+    path("s/<slug:site_slug>/share/<slug:product_slug>/", views.share_page, name="site_share_product"),
+    # 預設展間（無 slug 前綴）
+    path("", views.home, name="home"),
+    path("brand/", views.brand_zone, name="brand"),
+    path("products/", views.product_list, name="products"),
+    path("zone/<slug:zone_slug>/", views.zone_detail, name="zone"),
+    path("product/<slug:product_slug>/", views.product_detail, name="product"),
+    path("inquiry/", views.submit_inquiry, name="inquiry"),
+    path("share/", views.share_page, name="share"),
+    path("share/<slug:product_slug>/", views.share_page, name="share_product"),
+]

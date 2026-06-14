@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ zone.title_zh }} — {{ site.name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="{% url 'home' %}">首頁</a> / <span>{{ zone.title_zh }}</span>
+    </nav>
+    <h1>{{ zone.title_zh }}</h1>
+    <p>{{ zone.summary_zh }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if zone.photo_gallery %}
+    {{ zone.photo_gallery|json_script:"zone-gallery-json" }}
+    {% if street_tour %}{{ street_tour|json_script:"street-tour-json" }}{% endif %}
+    {% if digital_twins %}{{ digital_twins|json_script:"digital-twins-json" }}{% endif %}
+    <div class="immersive-tour-section mb-10">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <h2 class="section-subtitle mb-0">
+          {% if lang == 'en' %}Immersive Factory Tour{% elif lang == 'ja' %}没入型{% else %}沉浸導覽{% endif %}
+          · {{ site.name }}
+        </h2>
+        <a href="{% url 'vr_zone' zone_slug=zone.slug %}"
+           class="inline-flex items-center gap-2 px-5 py-2.5 bg-black text-white text-sm font-bold rounded-lg hover:bg-gray-800 transition-colors shadow-lg">
+          <span>🥽</span>
+          {% if lang == 'en' %}Enter VR Hall{% elif lang == 'ja' %}VR館{% else %}進入 VR 展覽館{% endif %}
+        </a>
+      </div>
+      <p class="text-sm text-leisure-navy/70 mb-3">
+        {% if lang == 'en' %}Preview below with Matterport-style tech grading, or enter VR Hall for fullscreen{% elif lang == 'ja' %}Matterport風テック加工プレビュー{% else %}下方為 Matterport 風格科技美顏預覽；點「進入 VR 展覽館」獲得全螢幕沉浸體驗（橫向 · 路標導覽）{% endif %}
+      </p>
+      <div id="immersiveTourMount" data-streetview data-title="{{ zone.title_zh }}"></div>
+    </div>
+    {% elif zone.panorama_embed_url %}
+    <div class="panorama-embed panorama-embed-factory">
+      {% if "matterport.com" in zone.panorama_embed_url %}
+      <div class="panorama-source-badge">
+        {% if lang == 'en' %}Real factory 360° (Matterport){% elif lang == 'ja' %}実工場360°{% else %}真實工廠 360° 實境 · 拖曳環顧 · 點地面移動{% endif %}
+        · <a href="{% url 'factory_cases' %}" class="underline">{% if lang == 'en' %}More cases{% else %}更多案例{% endif %}</a>
+      </div>
+      {% endif %}
+      <iframe src="{{ zone.panorama_embed_url }}"
+              allowfullscreen
+              allow="xr-spatial-tracking; fullscreen"
+              loading="lazy"
+              title="360° {% if lang == 'en' %}Factory tour{% else %}工廠導覽{% endif %}"></iframe>
+    </div>
+    {% elif zone.panorama_image %}
+    <div class="panorama-viewer" id="panoramaViewer" data-src="{{ zone.panorama_image.url }}">
+      <div class="panorama-hint">拖曳瀏覽 360° 全景</div>
+    </div>
+    {% endif %}
+
+    {% if zone.audio_guide %}
+    <div class="zone-audio-guide mb-8 p-5 bg-leisure-sky/40 rounded-2xl border border-leisure-blue/15">
+      <h2 class="section-subtitle mb-3">{% if lang == 'en' %}Audio Guide{% elif lang == 'ja' %}音声ガイド{% else %}語音導覽{% endif %}</h2>
+      <audio controls preload="metadata" class="w-full max-w-xl">
+        <source src="{{ zone.audio_guide.url }}">
+      </audio>
+    </div>
+    {% endif %}
+
+    {% if zone.photo_gallery %}
+    <div class="zone-photo-gallery mb-10">
+      <h2 class="section-subtitle mb-4">{% if lang == 'en' %}On-site Photos{% elif lang == 'ja' %}現場写真{% else %}現場實景照片{% endif %}（{{ zone.photo_gallery|length }}）</h2>
+      <div class="zone-gallery-scroll flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
+        {% for url in zone.photo_gallery %}
+        <a href="{{ url }}" target="_blank" rel="noopener" class="flex-shrink-0 snap-center">
+          <img src="{{ url }}" alt="{{ zone.title_zh }}" class="h-56 sm:h-72 w-auto rounded-xl border-2 border-leisure-blue/10 hover:border-leisure-yellow object-cover shadow-sport transition-colors">
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if zone.floor_plan_image or hotspots %}
+    <div class="floor-plan-wrap">
+      <h2 class="section-subtitle">{% if lang == 'en' %}Click hotspots to explore{% elif lang == 'ja' %}ホットスポット{% else %}點選熱點查看設備{% endif %}</h2>
+      <div class="floor-plan" id="floorPlan"
+           {% if zone.floor_plan_image %}style="background-image:url('{{ zone.floor_plan_image.url }}')"{% endif %}>
+        {% for h in hotspots %}
+        <a href="{% if h.hotspot_type == 'product' and h.product %}{% url 'product' product_slug=h.product.slug %}{% elif h.hotspot_type == 'zone' and h.target_zone %}{% url 'zone' zone_slug=h.target_zone.slug %}{% elif h.external_url %}{{ h.external_url }}{% else %}#{% endif %}"
+           class="hotspot" style="left:{{ h.pos_x }}%;top:{{ h.pos_y }}%;"
+           title="{{ h.tooltip_zh|default:h.label_zh }}"
+           {% if h.external_url %}target="_blank" rel="noopener"{% endif %}>
+          <span class="hotspot-pulse"></span>
+          <span class="hotspot-label">{{ h.label_zh }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if products %}
+    <h2 class="section-subtitle" style="margin-top:40px">{% if lang == 'en' %}Equipment in this zone{% elif lang == 'ja' %}このゾーンの設備{% else %}本分區設備{% endif %}</h2>
+    <div class="product-grid">
+      {% for p in products %}
+      <a href="{% url 'product' product_slug=p.slug %}" class="product-card">
+        {% if p.cover_image %}
+          <div class="product-card-img" style="background-image:url('{{ p.cover_image.url }}')"></div>
+        {% else %}
+          <div class="product-card-img product-card-placeholder"></div>
+        {% endif %}
+        <div class="product-card-body">
+          <span class="product-model">{{ p.model_no }}</span>
+          <h3>{{ p.name_zh }}</h3>
+          <p>{{ p.summary_zh|truncatechars:60 }}</p>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+{% if zone.photo_gallery %}
+<script type="module">
+  import { initStreetViewTour, initImmersiveTour } from "{% static 'js/showroom-streetview.js' %}";
+  const el = document.getElementById('immersiveTourMount');
+  const tourEl = document.getElementById('street-tour-json');
+  const galleryEl = document.getElementById('zone-gallery-json');
+  if (el && tourEl) {
+    initStreetViewTour(el, JSON.parse(tourEl.textContent), { refinedMode: true, techMode: false });
+  } else if (el && galleryEl) {
+    initImmersiveTour(el, JSON.parse(galleryEl.textContent), { title: el.dataset.title || '' });
+  }
+</script>
+{% endif %}
+{% endblock %}

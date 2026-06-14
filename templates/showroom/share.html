@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}分享 — {{ site.name }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="text-align:center; padding:60px 20px;">
+    <h1>{% if product %}{{ product.name_zh }}{% else %}{{ site.name }}{% endif %}</h1>
+    <p>{% if product %}{{ product.summary_zh }}{% else %}{{ site.tagline }}{% endif %}</p>
+    <div class="social-buttons" style="justify-content:center; margin-top:24px;">
+      <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="social-btn">Facebook</a>
+      <a href="https://line.me/R/msg/text/?{{ site.name|urlencode }}%20{{ request.build_absolute_uri }}" target="_blank" class="social-btn">LINE</a>
+      <button type="button" class="social-btn" onclick="navigator.clipboard.writeText(window.location.href);alert('已複製連結')">複製連結</button>
+    </div>
+    <a href="{% if product %}{% url 'product' product_slug=product.slug %}{% else %}{% url 'home' %}{% endif %}" class="btn btn-primary" style="margin-top:24px;">進入展間</a>
+  </div>
+</section>
+{% endblock %}

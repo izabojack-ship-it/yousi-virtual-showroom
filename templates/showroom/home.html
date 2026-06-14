@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ site.name }} — {% if lang == 'en' %}Immersive Virtual Showroom{% elif lang == 'ja' %}没入型ショールーム{% else %}沉浸式雲端虛擬展間{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Hero：休閒運動風迎賓 -->
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-leisure-blue via-[#2A5F9E] to-leisure-navy"></div>
+  {% if site.hero_image %}
+  <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image:url('{{ site.hero_image.url }}')"></div>
+  {% endif %}
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-white">
+    <span class="inline-block px-4 py-1.5 text-xs font-bold bg-leisure-yellow text-leisure-navy rounded-full mb-4 shadow-yellow-glow">
+      {% if site.slug == 'zitai' %}
+        {% if lang == 'en' %}ZITAI · Die Casting Factory Tour{% elif lang == 'ja' %}ZITAI 工場{% else %}鋁台精機 ZITAI · 冷室壓鑄機{% endif %}
+      {% else %}
+        {% if lang == 'en' %}Leisure Sports · Zero-Latency Cloud{% elif lang == 'ja' %}レジャースポーツ{% else %}休閒運動風 · 手機端零延遲雲端展間{% endif %}
+      {% endif %}
+    </span>
+    <h1 class="text-3xl sm:text-5xl font-black leading-tight max-w-3xl">{{ site.name }}</h1>
+    <p class="mt-4 text-lg text-white/85 max-w-2xl">{{ site.tagline }}</p>
+    <div class="mt-8 flex flex-wrap gap-4">
+      {% if site.slug == 'zitai' %}
+      <a href="{% url 'vr_hall' %}"
+         class="inline-flex px-8 py-3.5 text-sm font-bold bg-gray-900 text-white rounded-full hover:bg-black transition-colors shadow-lg">
+        {% if lang == 'en' %}Enter VR Hall{% elif lang == 'ja' %}VR館{% else %}🕶 進入 VR 展覽館{% endif %}
+      </a>
+      {% endif %}
+      <a href="{% url 'ar_tour' %}"
+         class="inline-flex px-8 py-3.5 text-sm font-bold bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow animate-pulse">
+        {% if lang == 'en' %}Start AR Tour{% elif lang == 'ja' %}ARツアー開始{% else %}🚀 開始 AR 沉浸式導覽{% endif %}
+      </a>
+      <a href="{% url 'products' %}"
+         class="inline-flex px-8 py-3.5 text-sm font-bold bg-leisure-yellow text-leisure-navy rounded-full hover:shadow-yellow-glow transition-shadow">
+        {% if site.slug == 'zitai' %}{% if lang == 'en' %}Explore Die Casting Machines{% elif lang == 'ja' %}製品一覧{% else %}探索壓鑄機產品{% endif %}{% else %}{% if lang == 'en' %}Explore 10 Key Components{% elif lang == 'ja' %}10部品を見る{% else %}探索 10 項關鍵零組件{% endif %}{% endif %}
+      </a>
+      <a href="#topology"
+         class="inline-flex px-8 py-3.5 text-sm font-bold border-2 border-white/60 text-white rounded-full hover:bg-white/10 transition-colors">
+        {% if lang == 'en' %}Space Topology{% elif lang == 'ja' %}空間案内{% else %}空間拓撲導覽{% endif %}
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Level 1~3 空間拓撲 -->
+<section id="topology" class="py-12 sm:py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-2xl sm:text-3xl font-black text-leisure-navy text-center mb-2">
+      {% if lang == 'en' %}Space Topology{% elif lang == 'ja' %}空間トポロジー{% else %}空間拓撲導覽{% endif %}
+    </h2>
+    <p class="text-center text-sm text-leisure-blue/70 mb-10 max-w-xl mx-auto">
+      {% if lang == 'en' %}Level 1 Lobby → Level 2 Dual-Plant Hub → Level 3 Deep Process{% elif lang == 'ja' %}Level 1〜3 の階層構造{% else %}Level 1 品牌迎賓大廳 → Level 2 雙廠區樞紐 → Level 3 深度製程展區{% endif %}
+    </p>
+
+    <div class="space-y-8">
+      {% for lvl in levels %}
+      <div id="level-{{ lvl.slug }}" class="bg-white rounded-2xl border-2 {% if lvl.level_number == 1 %}border-leisure-yellow shadow-yellow-glow{% else %}border-leisure-blue/15 shadow-sport{% endif %} overflow-hidden">
+        <div class="grid md:grid-cols-3 gap-0">
+          <div class="md:col-span-1 relative min-h-[180px] bg-leisure-sky">
+            {% if lvl.cover_image %}
+            <img src="{{ lvl.cover_image.url }}" alt="{{ lvl.name_zh }}" class="w-full h-full object-cover absolute inset-0">
+            {% else %}
+            <div class="absolute inset-0 bg-gradient-to-br from-leisure-blue to-leisure-navy flex items-center justify-center">
+              <span class="text-6xl font-black text-leisure-yellow/30">L{{ lvl.level_number }}</span>
+            </div>
+            {% endif %}
+            <div class="absolute top-4 left-4 px-3 py-1 bg-leisure-yellow text-leisure-navy text-xs font-black rounded-full">
+              Level {{ lvl.level_number }}
+            </div>
+          </div>
+          <div class="md:col-span-2 p-6 sm:p-8">
+            <h3 class="text-xl font-black text-leisure-blue">{{ lvl.name_zh }}</h3>
+            <p class="mt-2 text-sm text-leisure-navy/80 leading-relaxed">{{ lvl.summary_zh }}</p>
+
+            {% if lvl.level_type == 'factory_hub' and lvl.plants.all %}
+            <div class="mt-5 grid sm:grid-cols-2 gap-3">
+              {% for plant in lvl.plants.all %}
+                {% if plant.is_active %}
+                <div class="rounded-xl border border-leisure-sky p-4 bg-leisure-sky/30 hover:border-leisure-yellow transition-colors">
+                  <span class="text-xs font-bold text-leisure-blue">
+                    {% if plant.plant_type == 'taiwan' %}{% if lang == 'en' %}Taiwan Plant{% elif lang == 'ja' %}台湾工場{% else %}台灣廠（實地取景）{% endif %}{% else %}{% if lang == 'en' %}Vietnam Plant{% elif lang == 'ja' %}ベトナム工場{% else %}越南廠（數位重構）{% endif %}{% endif %}
+                  </span>
+                  <h4 class="font-bold text-leisure-navy mt-1">{{ plant.name_zh }}</h4>
+                  <p class="text-xs text-leisure-navy/70 mt-1 line-clamp-2">{{ plant.description_zh }}</p>
+                  {% if plant.audio_guide %}
+                  <audio controls preload="none" class="w-full mt-3 h-8">
+                    <source src="{{ plant.audio_guide.url }}">
+                  </audio>
+                  {% endif %}
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if lvl.products.all %}
+            <div class="mt-5 flex flex-wrap gap-2">
+              {% for p in lvl.products.all %}
+                {% if p.is_active %}
+                <a href="{% url 'product' product_slug=p.slug %}"
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white border border-leisure-blue/20 rounded-full hover:border-leisure-yellow hover:shadow-yellow-glow transition-all">
+                  <span class="w-2 h-2 bg-leisure-yellow rounded-full"></span>
+                  {{ p.name_zh }}
+                </a>
+                {% endif %}
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center py-12 text-leisure-blue/60">
+        <p>{% if lang == 'en' %}Levels pending setup in admin{% elif lang == 'ja' %}管理画面で設定{% else %}請至後台建立 Level 1~3 展間層級{% endif %}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- 精選 10 項關鍵零組件 -->
+{% if featured_products %}
+<section class="py-12 bg-white border-y border-leisure-blue/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-2xl font-black text-leisure-navy mb-8">
+      {% if lang == 'en' %}10 Key Components{% elif lang == 'ja' %}10の主要部品{% else %}10 項關鍵零組件{% endif %}
+      <span class="block text-sm font-medium text-leisure-blue/60 mt-1">
+        {% if lang == 'en' %}1:1 Digital Twin · PopRealAR{% elif lang == 'ja' %}デジタルツイン{% else %}1:1 數位孿生 · PopRealAR 即時互動{% endif %}
+      </span>
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+      {% for p in featured_products %}
+      <a href="{% url 'product' product_slug=p.slug %}"
+         class="group rounded-2xl border border-leisure-blue/15 overflow-hidden hover:border-leisure-yellow hover:shadow-yellow-glow transition-all bg-white">
+        {% if p.cover_image %}
+        <div class="aspect-square bg-cover bg-center" style="background-image:url('{{ p.cover_image.url }}')"></div>
+        {% else %}
+        <div class="aspect-square bg-gradient-to-br from-[#0F2D52] to-leisure-blue flex items-center justify-center relative">
+          <span class="text-leisure-yellow font-black text-3xl group-hover:scale-110 transition-transform">3D</span>
+          <div class="absolute bottom-2 right-2 px-2 py-0.5 bg-leisure-yellow text-leisure-navy text-[10px] font-bold rounded-full">PopRealAR</div>
+        </div>
+        {% endif %}
+        <div class="p-4">
+          <span class="text-[10px] font-bold text-leisure-blue/50 uppercase tracking-wider">{{ p.model_no }}</span>
+          <h3 class="font-bold text-sm text-leisure-navy group-hover:text-leisure-blue transition-colors leading-snug">{{ p.name_zh }}</h3>
+          {% if p.gltf_file or p.model_3d_url or p.step_file %}
+          <span class="inline-block mt-2 text-[10px] font-bold text-leisure-yellow bg-leisure-navy px-2 py-0.5 rounded-full">GLB Ready</span>
+          {% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="text-center mt-8">
+      <a href="{% url 'products' %}" class="inline-flex px-8 py-3 text-sm font-bold bg-leisure-blue text-white rounded-full hover:bg-leisure-navy transition-colors">
+        {% if lang == 'en' %}View All Components{% elif lang == 'ja' %}すべて見る{% else %}查看全部零組件{% endif %}
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- 傳統分區導覽（向下相容） -->
+{% if zones %}
+<section class="py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-blue mb-6">
+      {% if lang == 'en' %}Zone Navigation{% elif lang == 'ja' %}ゾーン案内{% else %}分區快速引導{% endif %}
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <a href="{% url 'brand' %}" class="rounded-2xl border-2 border-leisure-yellow p-6 bg-leisure-yellow/10 hover:shadow-yellow-glow transition-shadow">
+        <div class="text-3xl mb-2">🏢</div>
+        <h3 class="font-bold text-leisure-navy">{% if lang == 'en' %}Brand Lobby{% elif lang == 'ja' %}ブランド{% else %}企業形象區{% endif %}</h3>
+        <p class="text-xs text-leisure-navy/70 mt-1">{% if lang == 'en' %}Corporate identity{% elif lang == 'ja' %}企業アイデンティティ{% else %}企業識別、海報、社群{% endif %}</p>
+      </a>
+      {% for z in zones %}
+      <a href="{% url 'zone' zone_slug=z.slug %}" class="rounded-2xl border border-leisure-blue/15 overflow-hidden hover:border-leisure-blue hover:shadow-sport transition-all bg-white">
+        {% if z.cover_image %}
+        <div class="h-28 bg-cover bg-center" style="background-image:url('{{ z.cover_image.url }}')"></div>
+        {% endif %}
+        <div class="p-4">
+          <span class="text-[10px] font-bold text-leisure-blue/50">{{ z.get_zone_type_display }}</span>
+          <h3 class="font-bold text-leisure-navy">{{ z.title_zh }}</h3>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if posters %}
+<section class="py-12 bg-leisure-sky/40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="text-xl font-black text-leisure-blue mb-6">
+      {% if lang == 'en' %}Brand Gallery{% elif lang == 'ja' %}ギャラリー{% else %}企業形象展示{% endif %}
+    </h2>
+    <div class="flex gap-4 overflow-x-auto pb-4 snap-x">
+      {% for poster in posters %}
+      <div class="snap-start shrink-0 w-64 rounded-xl overflow-hidden border border-leisure-blue/15 shadow-sport">
+        {% if poster.link_url %}<a href="{{ poster.link_url }}" target="_blank" rel="noopener">{% endif %}
+        <img src="{{ poster.image.url }}" alt="{{ poster.title_zh }}" class="w-full h-40 object-cover">
+        {% if poster.link_url %}</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

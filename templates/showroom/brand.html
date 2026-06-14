@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}形象區 — {{ site.name }}{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <h1>{% if lang == 'en' %}Brand Image Zone{% elif lang == 'ja' %}ブランドゾーン{% else %}企業形象區{% endif %}</h1>
+    <p>{{ site.description }}</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    {% if posters %}
+    <div class="poster-grid">
+      {% for poster in posters %}
+      <div class="poster-card">
+        {% if poster.link_url %}<a href="{{ poster.link_url }}" target="_blank" rel="noopener">{% endif %}
+        <img src="{{ poster.image.url }}" alt="{{ poster.title_zh }}">
+        <h3>{{ poster.title_zh }}</h3>
+        {% if poster.link_url %}</a>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <p>形象海報可由後台管理介面上傳</p>
+    </div>
+    {% endif %}
+
+    <div class="social-block">
+      <h2>{% if lang == 'en' %}Connect With Us{% elif lang == 'ja' %}お問い合わせ{% else %}一鍵連結社群與官網{% endif %}</h2>
+      <div class="social-buttons">
+        {% if site.website_url %}<a href="{{ site.website_url }}" class="social-btn" target="_blank" rel="noopener">🌐 官網</a>{% endif %}
+        {% if site.facebook_url %}<a href="{{ site.facebook_url }}" class="social-btn" target="_blank" rel="noopener">Facebook</a>{% endif %}
+        {% if site.instagram_url %}<a href="{{ site.instagram_url }}" class="social-btn" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        {% if site.youtube_url %}<a href="{{ site.youtube_url }}" class="social-btn" target="_blank" rel="noopener">YouTube</a>{% endif %}
+        {% if site.line_url %}<a href="{{ site.line_url }}" class="social-btn" target="_blank" rel="noopener">LINE</a>{% endif %}
+        <button type="button" class="social-btn social-btn-primary" onclick="openInquiry()">💬 線上諮詢</button>
+      </div>
+    </div>
+
+    {% if guides %}
+    <div class="guide-block">
+      <h2>操作說明指引</h2>
+      <div class="guide-steps">
+        {% for g in guides %}
+        <div class="guide-step">
+          <span class="guide-step-num">{{ forloop.counter }}</span>
+          <div>
+            <h4>{{ g.title_zh }}</h4>
+            <p>{{ g.content_zh }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

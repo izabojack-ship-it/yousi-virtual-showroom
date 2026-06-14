@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name_zh }} — {{ site.name }}{% endblock %}
+{% block og_title %}{{ product.name_zh }}{% endblock %}
+{% block meta_desc %}{{ product.summary_zh }}{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero-sm">
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="{% url 'home' %}">首頁</a>
+      {% if product.zone %} / <a href="{% url 'zone' zone_slug=product.zone.slug %}">{{ product.zone.title_zh }}</a>{% endif %}
+      / <span>{{ product.name_zh }}</span>
+    </nav>
+  </div>
+</section>
+
+<article class="product-detail">
+  <div class="container">
+    <div class="product-detail-grid">
+      <div class="product-visual">
+        {% if product.cover_image %}
+          <img src="{{ product.cover_image.url }}" alt="{{ product.name_zh }}" class="product-hero-img">
+        {% endif %}
+        {% if product.hero_video_url %}
+        <div class="product-video">
+          <iframe src="{{ product.hero_video_url }}" allowfullscreen loading="lazy" title="產品影片"></iframe>
+        </div>
+        {% endif %}
+        {% if media_items %}
+        <div class="product-gallery">
+          {% for m in media_items %}
+            {% if m.image %}
+              <img src="{{ m.image.url }}" alt="{{ m.title }}">
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="product-info">
+        <span class="product-model-lg">{{ product.model_no }}</span>
+        <h1>{{ product.name_zh }}</h1>
+        {% if product.tagline_zh %}<p class="product-tagline">{{ product.tagline_zh }}</p>{% endif %}
+        <p class="product-summary">{{ product.summary_zh }}</p>
+
+        <div class="product-badges">
+          {% if product.ar_popreal_url %}<span class="badge badge-ar">PopReal AR</span>{% endif %}
+          {% if product.model_3d_url %}<span class="badge badge-3d">3D 模型</span>{% endif %}
+          {% if product.has_animation %}<span class="badge badge-anim">動態展示</span>{% endif %}
+        </div>
+
+        {% if product.features_zh %}
+        <ul class="feature-list">
+          {% for f in product.features_zh %}
+          <li>{{ f }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="product-actions">
+          {% if product.ar_popreal_url %}
+          <a href="{{ product.ar_popreal_url }}" target="_blank" rel="noopener" class="btn btn-accent">體驗 AR</a>
+          {% endif %}
+          {% if product.model_3d_url %}
+          <a href="{{ product.model_3d_url }}" target="_blank" rel="noopener" class="btn btn-outline">查看 3D</a>
+          {% endif %}
+          {% if product.catalog_pdf %}
+          <a href="{{ product.catalog_pdf.url }}" target="_blank" class="btn btn-outline">下載型錄</a>
+          {% endif %}
+          {% if product.official_url %}
+          <a href="{{ product.official_url }}" target="_blank" rel="noopener" class="btn btn-outline">官網詳情</a>
+          {% endif %}
+          <button type="button" class="btn btn-primary" onclick="openInquiry('{{ product.slug }}')">線上諮詢</button>
+          <button type="button" class="btn btn-outline" onclick="shareProduct('{{ product.name_zh }}', window.location.href)">分享</button>
+        </div>
+      </div>
+    </div>
+
+    {% if product.description_zh %}
+    <div class="product-description">
+      <h2>詳細介紹</h2>
+      <div class="rich-text">{{ product.description_zh|linebreaks }}</div>
+    </div>
+    {% endif %}
+
+    {% if product.has_animation and product.animation_note_zh %}
+    <div class="animation-block">
+      <h2>動態展示</h2>
+      <p>{{ product.animation_note_zh }}</p>
+    </div>
+    {% endif %}
+
+    {% if product.specs %}
+    <div class="specs-table-wrap">
+      <h2>規格表</h2>
+      <table class="specs-table">
+        {% for key, val in product.specs.items %}
+        <tr><th>{{ key }}</th><td>{{ val }}</td></tr>
+        {% endfor %}
+      </table>
+    </div>
+    {% endif %}
+
+    {% if related_products %}
+    <div class="related-section">
+      <h2>相關設備</h2>
+      <div class="product-grid product-grid-sm">
+        {% for p in related_products %}
+        <a href="{% url 'product' product_slug=p.slug %}" class="product-card">
+          <div class="product-card-body">
+            <h3>{{ p.name_zh }}</h3>
+            <span class="product-model">{{ p.model_no }}</span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}
