@@ -53,6 +53,10 @@ INSTALLED_APPS = [
 if USE_CLOUDINARY:
     # cloudinary_storage 必須在 staticfiles 之後即可（僅用於 media）
     INSTALLED_APPS += ["cloudinary_storage", "cloudinary"]
+    import cloudinary
+
+    # 外部批次上傳的資源版本非 v1；關閉 force_version 讓 URL 永遠指向最新版本
+    cloudinary.config(force_version=False)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
