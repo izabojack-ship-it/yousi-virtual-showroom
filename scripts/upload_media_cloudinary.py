@@ -12,6 +12,7 @@ BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 MEDIA_ROOT = BASE / "media"
 PREFIX = "media"
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # Cloudinary free tier per-file limit
 
 IMAGE_EXTS = {
     ".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".tif", ".tiff", ".ico",
@@ -108,6 +109,9 @@ def main() -> int:
     fail = 0
     for i, path in enumerate(files, 1):
         try:
+            if path.stat().st_size > MAX_UPLOAD_BYTES:
+                print(f"  SKIP large file ({path.stat().st_size // 1024 // 1024}MB): {path.relative_to(MEDIA_ROOT)}")
+                continue
             upload_file(path)
             ok += 1
             if i % 20 == 0 or i == total:

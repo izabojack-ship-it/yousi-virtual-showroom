@@ -5,6 +5,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from .analytics import track_event
 from .factory_tour_catalog import DEFAULT_FACTORY_PANORAMA, REAL_FACTORY_CASES
+from .media_utils import resolve_media_url
 from .site_tours import get_tour_steps
 from .models import (
     BrandPoster,
@@ -100,10 +101,12 @@ def zone_detail(request, zone_slug, site_slug=None):
     track_event(request, "zone_view", path=request.path, zone=zone)
 
     vr_ctx = _zone_vr_context(site, zone, lang)
+    gallery_urls = [resolve_media_url(u) for u in (zone.photo_gallery or [])]
 
     return render(request, "showroom/zone.html", {
         "site": site,
         "zone": zone,
+        "photo_gallery_urls": gallery_urls,
         "hotspots": hotspots,
         "products": products,
         "current_level": current_level,

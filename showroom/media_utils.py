@@ -199,3 +199,48 @@ def save_audio_from_path(instance, field_name: str, src: Path, media_subdir: str
     with dest.open("rb") as fh:
         getattr(instance, field_name).save(src.name, ContentFile(fh.read()), save=False)
     return True
+
+
+def resolve_media_url(url: str) -> str:
+    """將 /media/ 相對路徑轉為可公開存取的 URL（Cloudinary 或站點根網址）。"""
+    if not url:
+        return url
+    if url.startswith(("http://", "https://")):
+        return url.split("?", 1)[0] if getattr(settings, "USE_CLOUDINARY", False) else url
+
+    rel = url.replace("/media/", "", 1).split("?", 1)[0].lstrip("/")
+    if getattr(settings, "USE_CLOUDINARY", False):
+        import cloudinary
+        from cloudinary import CloudinaryImage
+
+        cloudinary.config(force_version=False)
+        return CloudinaryImage(f"media/{rel}").build_url(secure=True)
+
+    base = (getattr(settings, "SHOWROOM_PUBLIC_BASE_URL", "") or "").rstrip("/")
+    if base:
+        return f"{base}/media/{rel}"
+    return f"/media/{rel}"
+
+
+def resolve_file_field_url(file_field) -> str:
+    """FileField/ImageField → 公開 URL（Cloudinary 時走 CDN）。"""
+    if not file_field:
+        return ""
+    name = file_field.name or ""
+    if getattr(settings, "USE_CLOUDINARY", False) and name:
+        ext = Path(name.split("?", 1)[0]).suffix.lower()
+        raw_exts = {".pdf", ".step", ".stp", ".m4a", ".mp3", ".wav", ".igs", ".glb", ".gltf"}
+        if ext in raw_exts:
+            import cloudinary
+            from cloudinary import CloudinaryResource
+
+            cloudinary.config(force_version=False)
+            rel = name.split("?", 1)[0].lstrip("/")
+            return CloudinaryResource(
+                f"media/{rel}",
+                default_resource_type="raw",
+            ).build_url(secure=True)
+    try:
+        return file_field.url
+    except Exception:
+        return resolve_media_url(f"/media/{name}")

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load showroom_media %}
 
 {% block title %}{{ zone.title_zh }} — {{ site.name }}{% endblock %}
 
@@ -16,7 +17,7 @@
 <section class="section">
   <div class="container">
     {% if zone.photo_gallery %}
-    {{ zone.photo_gallery|json_script:"zone-gallery-json" }}
+    {{ photo_gallery_urls|json_script:"zone-gallery-json" }}
     {% if street_tour %}{{ street_tour|json_script:"street-tour-json" }}{% endif %}
     {% if digital_twins %}{{ digital_twins|json_script:"digital-twins-json" }}{% endif %}
     <div class="immersive-tour-section mb-10">
@@ -60,7 +61,7 @@
     <div class="zone-audio-guide mb-8 p-5 bg-leisure-sky/40 rounded-2xl border border-leisure-blue/15">
       <h2 class="section-subtitle mb-3">{% if lang == 'en' %}Audio Guide{% elif lang == 'ja' %}音声ガイド{% else %}語音導覽{% endif %}</h2>
       <audio controls preload="metadata" class="w-full max-w-xl">
-        <source src="{{ zone.audio_guide.url }}">
+        <source src="{{ zone.audio_guide|file_url }}">
       </audio>
     </div>
     {% endif %}
@@ -69,7 +70,7 @@
     <div class="zone-photo-gallery mb-10">
       <h2 class="section-subtitle mb-4">{% if lang == 'en' %}On-site Photos{% elif lang == 'ja' %}現場写真{% else %}現場實景照片{% endif %}（{{ zone.photo_gallery|length }}）</h2>
       <div class="zone-gallery-scroll flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
-        {% for url in zone.photo_gallery %}
+        {% for url in photo_gallery_urls %}
         <a href="{{ url }}" target="_blank" rel="noopener" class="flex-shrink-0 snap-center">
           <img src="{{ url }}" alt="{{ zone.title_zh }}" class="h-56 sm:h-72 w-auto rounded-xl border-2 border-leisure-blue/10 hover:border-leisure-yellow object-cover shadow-sport transition-colors">
         </a>

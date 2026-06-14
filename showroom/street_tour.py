@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 from showroom.models import ShowroomSite, Zone
+from showroom.media_utils import resolve_media_url
 
 # 分區間路標（相鄰車間導覽動線）
 ZONE_EXIT_SIGNS: dict[str, list[dict]] = {
@@ -96,7 +97,7 @@ def build_street_tour(zone: Zone, site: ShowroomSite, *, vr: bool = False) -> di
             })
         scenes.append({
             "id": i,
-            "url": url,
+            "url": resolve_media_url(url),
             "label": _scene_label(zone.slug, i, total),
             "links": links,
         })
